@@ -327,6 +327,57 @@
   }
   #sky-map .leaflet-control-attribution a{color:var(--accent-calm)!important;}
 
+  .breathe-stage{
+    display:flex;
+    justify-content:center;
+    padding:20px 0 8px;
+  }
+  .breathe-circle{
+    width:150px;height:150px;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, rgba(95,168,211,0.35), rgba(95,168,211,0.12) 70%);
+    border:1.5px solid var(--accent-calm);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+    transform:scale(0.62);
+    transition:transform 4s ease-in-out;
+  }
+  .breathe-circle.inhale{transform:scale(1);transition-duration:4s;}
+  .breathe-circle.hold-full{transform:scale(1);transition-duration:0.3s;}
+  .breathe-circle.exhale{transform:scale(0.62);transition-duration:4s;}
+  .breathe-circle.hold-empty{transform:scale(0.62);transition-duration:0.3s;}
+  .breathe-phase{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:15px;
+    font-weight:600;
+    color:var(--text-primary);
+    text-align:center;
+    padding:0 10px;
+  }
+  .breathe-count{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    color:var(--accent-calm);
+  }
+  .breathe-btn{
+    display:block;
+    margin:14px auto 0;
+    padding:10px 28px;
+    border-radius:24px;
+    border:1px solid var(--line-strong);
+    background:var(--accent-calm-dim);
+    color:var(--accent-calm);
+    font-family:'Space Grotesk',sans-serif;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    transition:background 0.15s ease;
+  }
+  .breathe-btn:hover{background:rgba(95,168,211,0.28);}
+
   .strip-times{
     display:flex;
     justify-content:space-between;
@@ -773,6 +824,20 @@
     </div>
 
   </div>
+
+  <div class="strip-card" id="breathe-card">
+    <div class="strip-top">
+      <span class="strip-route" data-i18n="breatheTitle">Guided breathing</span>
+    </div>
+    <p class="map-note" style="margin:0 0 16px" data-i18n="breatheIntro">Box breathing — a technique used by pilots and first responders to stay calm under stress. It's part of the app itself, so it works even offline, mid-flight, with no signal.</p>
+    <div class="breathe-stage">
+      <div class="breathe-circle" id="breathe-circle">
+        <span class="breathe-phase" id="breathe-phase" data-i18n="breathePhaseReady">Ready</span>
+        <span class="breathe-count" id="breathe-count"></span>
+      </div>
+    </div>
+    <button type="button" class="breathe-btn" id="breathe-btn" data-i18n="breatheStart">Start</button>
+  </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -836,6 +901,14 @@ const TRANSLATIONS = {
     "disclaimerLabel": "Read this before flying calmly:",
     "disclaimerMain": "even a \"high\" score on this scale is almost always just uncomfortable, not dangerous: aircraft are built to withstand far stronger stresses than the turbulence normally encountered, and pilots and controllers monitor and avoid it when they can. This is an indicative estimate from public weather models, not an official aviation forecast.",
     "disclaimerClimatology": "The \"vs. seasonal average\" comparisons are based on the same days of the year in past years (from 2022 onward, when available) at the route's midpoint: they give a sense of how much the forecast situation differs from what's typical for that area, not an official airline figure. Detailed weather forecasts only cover roughly the next 14 days, though: beyond that window the score and comparisons won't be available.",
+    "breatheTitle": "Guided breathing",
+    "breatheIntro": "Box breathing — used by pilots and first responders to stay calm under stress. It's built into the app itself, so it works even offline, mid-flight, with no signal.",
+    "breatheStart": "Start",
+    "breatheStop": "Stop",
+    "breathePhaseReady": "Ready",
+    "breathePhaseInhale": "Inhale",
+    "breathePhaseExhale": "Exhale",
+    "breathePhaseHold": "Hold",
     "gaugeLabel0": "0 — stable air",
     "gaugeLabel100": "100 — very agitated",
     "gaugeCaption": "This number isn't a probability: it's a composite index that summarizes upper-level wind, air instability and gusts along the route on a 0–100 scale. Below 30 the air tends to be stable, between 30 and 60 noticeable but normal bumps are likely, above 60 the conditions predicted by the models are more agitated than usual for that area.",
@@ -959,6 +1032,14 @@ const TRANSLATIONS = {
     "disclaimerLabel": "Da leggere prima di partire tranquilli:",
     "disclaimerMain": "anche un punteggio \"elevato\" in questa scala è quasi sempre solo fastidioso, non pericoloso: gli aerei sono costruiti per sollecitazioni molto più forti della turbolenza che si incontra normalmente, e piloti e controllori la monitorano e la evitano quando possono. È una stima indicativa da modelli meteo pubblici, non una previsione ufficiale dell'aviazione.",
     "disclaimerClimatology": "I confronti \"rispetto alla media di stagione\" si basano sugli stessi giorni dell'anno negli anni scorsi (dal 2022 in poi, quando disponibili) nel punto centrale della rotta: danno un'idea di quanto la situazione prevista si discosti dal solito per quella zona, non un dato ufficiale della compagnia aerea. Le previsioni meteo dettagliate coprono comunque solo circa i prossimi 14 giorni: oltre quella finestra il punteggio e i confronti non saranno disponibili.",
+    "breatheTitle": "Respirazione guidata",
+    "breatheIntro": "Respirazione a scatola (\"box breathing\") — usata da piloti e soccorritori per restare calmi sotto stress. È parte dell'app stessa, quindi funziona anche offline, in volo, senza segnale.",
+    "breatheStart": "Inizia",
+    "breatheStop": "Ferma",
+    "breathePhaseReady": "Pronto",
+    "breathePhaseInhale": "Inspira",
+    "breathePhaseExhale": "Espira",
+    "breathePhaseHold": "Trattieni",
     "gaugeLabel0": "0 — aria stabile",
     "gaugeLabel100": "100 — molto agitata",
     "gaugeCaption": "Questo numero non è una probabilità: è un indice composito che riassume in una scala 0–100 vento in quota, instabilità dell'aria e raffiche lungo la rotta. Sotto 30 l'aria è tendenzialmente stabile, tra 30 e 60 sono probabili scossoni percepibili ma nella norma, sopra 60 le condizioni previste dai modelli sono più agitate del solito per quella zona.",
@@ -1082,6 +1163,14 @@ const TRANSLATIONS = {
     "disclaimerLabel": "Lee esto antes de volar tranquilo:",
     "disclaimerMain": "incluso una puntuación \"alta\" en esta escala es casi siempre solo molesta, no peligrosa: los aviones están construidos para soportar tensiones mucho más fuertes que la turbulencia que se encuentra normalmente, y pilotos y controladores la monitorean y evitan cuando pueden. Es una estimación indicativa a partir de modelos meteorológicos públicos, no una previsión oficial de aviación.",
     "disclaimerClimatology": "Las comparaciones \"respecto a la media estacional\" se basan en los mismos días del año en años anteriores (desde 2022, cuando estén disponibles) en el punto central de la ruta: dan una idea de cuánto se aparta la situación prevista de lo habitual para esa zona, no un dato oficial de la aerolínea. Las previsiones meteorológicas detalladas cubren de todos modos solo unos 14 días: más allá de esa ventana, la puntuación y las comparaciones no estarán disponibles.",
+    "breatheTitle": "Respiración guiada",
+    "breatheIntro": "Respiración cuadrada (\"box breathing\") — usada por pilotos y personal de emergencias para mantener la calma bajo estrés. Forma parte de la propia app, así que funciona incluso sin conexión, en pleno vuelo, sin señal.",
+    "breatheStart": "Empezar",
+    "breatheStop": "Detener",
+    "breathePhaseReady": "Listo",
+    "breathePhaseInhale": "Inhala",
+    "breathePhaseExhale": "Exhala",
+    "breathePhaseHold": "Mantén",
     "gaugeLabel0": "0 — aire estable",
     "gaugeLabel100": "100 — muy agitado",
     "gaugeCaption": "Este número no es una probabilidad: es un índice compuesto que resume en una escala de 0 a 100 el viento en altura, la inestabilidad del aire y las ráfagas a lo largo de la ruta. Por debajo de 30 el aire tiende a ser estable, entre 30 y 60 son probables sacudidas perceptibles pero normales, por encima de 60 las condiciones previstas por los modelos son más agitadas de lo habitual para esa zona.",
@@ -1205,6 +1294,14 @@ const TRANSLATIONS = {
     "disclaimerLabel": "À lire avant de partir l'esprit tranquille :",
     "disclaimerMain": "même un score \"élevé\" sur cette échelle est presque toujours simplement désagréable, pas dangereux : les avions sont construits pour résister à des contraintes bien plus fortes que la turbulence normalement rencontrée, et pilotes et contrôleurs la surveillent et l'évitent quand ils le peuvent. Il s'agit d'une estimation indicative issue de modèles météo publics, pas d'une prévision aéronautique officielle.",
     "disclaimerClimatology": "Les comparaisons \"par rapport à la moyenne saisonnière\" se basent sur les mêmes jours de l'année lors des années passées (à partir de 2022, quand disponibles) au point central de la route : elles donnent une idée de l'écart entre la situation prévue et ce qui est habituel pour cette zone, pas une donnée officielle de la compagnie aérienne. Les prévisions météo détaillées ne couvrent de toute façon qu'environ les 14 prochains jours : au-delà, le score et les comparaisons ne seront pas disponibles.",
+    "breatheTitle": "Respiration guidée",
+    "breatheIntro": "Respiration carrée (\"box breathing\") — utilisée par les pilotes et les secouristes pour rester calme sous stress. Elle fait partie de l'appli elle-même, donc elle fonctionne même hors ligne, en plein vol, sans signal.",
+    "breatheStart": "Commencer",
+    "breatheStop": "Arrêter",
+    "breathePhaseReady": "Prêt",
+    "breathePhaseInhale": "Inspirez",
+    "breathePhaseExhale": "Expirez",
+    "breathePhaseHold": "Retenez",
     "gaugeLabel0": "0 — air stable",
     "gaugeLabel100": "100 — très agité",
     "gaugeCaption": "Ce chiffre n'est pas une probabilité : c'est un indice composite qui résume sur une échelle de 0 à 100 le vent en altitude, l'instabilité de l'air et les rafales le long de la route. En dessous de 30, l'air tend à être stable ; entre 30 et 60, des secousses perceptibles mais normales sont probables ; au-dessus de 60, les conditions prévues par les modèles sont plus agitées que d'habitude pour cette zone.",
@@ -1328,6 +1425,14 @@ const TRANSLATIONS = {
     "disclaimerLabel": "登机前请先阅读：",
     "disclaimerMain": "即使这个量表上出现“较高”的分数，通常也只是令人不适，而非危险：飞机的设计能够承受远超正常湍流的应力，飞行员和管制员也会在可能的情况下监测并避开湍流。这是根据公开气象模型得出的参考性估算，并非官方航空预报。",
     "disclaimerClimatology": "“与季节性平均值相比”的比较基于往年同一天（自2022年起，如有数据）在航线中点处的数据：这可以让你了解预报情况与该地区通常状况的差异程度，并非航空公司的官方数据。详细天气预报大约只覆盖未来14天：超出此窗口后，指数和比较将不可用。",
+    "breatheTitle": "引导呼吸",
+    "breatheIntro": "方块呼吸法——飞行员和急救人员用来在压力下保持冷静的方法。它内置于应用本身，因此即使在飞行途中没有信号也能离线使用。",
+    "breatheStart": "开始",
+    "breatheStop": "停止",
+    "breathePhaseReady": "准备",
+    "breathePhaseInhale": "吸气",
+    "breathePhaseExhale": "呼气",
+    "breathePhaseHold": "屏息",
     "gaugeLabel0": "0 — 空气稳定",
     "gaugeLabel100": "100 — 非常剧烈",
     "gaugeCaption": "这个数字不是概率：它是一个综合指数，用0-100的量表总结了航线沿途的高空风、大气不稳定性和阵风情况。低于30通常表示空气较为稳定，30到60之间可能出现明显但属正常范围的颠簸，高于60则表示模型预测该地区的状况比平时更剧烈。",
@@ -1451,6 +1556,14 @@ const TRANSLATIONS = {
     "disclaimerLabel": "Leia isto antes de embarcar tranquilo:",
     "disclaimerMain": "mesmo uma pontuação \"elevada\" nesta escala é quase sempre apenas desconfortável, não perigosa: as aeronaves são construídas para suportar tensões muito mais fortes do que a turbulência normalmente encontrada, e pilotos e controladores a monitoram e evitam quando podem. Esta é uma estimativa indicativa de modelos meteorológicos públicos, não uma previsão aeronáutica oficial.",
     "disclaimerClimatology": "As comparações \"em relação à média sazonal\" são baseadas nos mesmos dias do ano em anos anteriores (a partir de 2022, quando disponível) no ponto central da rota: dão uma ideia de quanto a situação prevista se desvia do habitual para aquela área, não é um dado oficial da companhia aérea. As previsões meteorológicas detalhadas cobrem de qualquer forma apenas cerca dos próximos 14 dias: além dessa janela, a pontuação e as comparações não estarão disponíveis.",
+    "breatheTitle": "Respiração guiada",
+    "breatheIntro": "Respiração quadrada (\"box breathing\") — usada por pilotos e socorristas para manter a calma sob estresse. Faz parte do próprio app, então funciona mesmo offline, em pleno voo, sem sinal.",
+    "breatheStart": "Começar",
+    "breatheStop": "Parar",
+    "breathePhaseReady": "Pronto",
+    "breathePhaseInhale": "Inspire",
+    "breathePhaseExhale": "Expire",
+    "breathePhaseHold": "Segure",
     "gaugeLabel0": "0 — ar estável",
     "gaugeLabel100": "100 — muito agitado",
     "gaugeCaption": "Este número não é uma probabilidade: é um índice composto que resume em uma escala de 0 a 100 o vento em altitude, a instabilidade do ar e as rajadas ao longo da rota. Abaixo de 30, o ar tende a ser estável; entre 30 e 60, solavancos perceptíveis mas normais são prováveis; acima de 60, as condições previstas pelos modelos são mais agitadas do que o normal para aquela área.",
@@ -1567,6 +1680,7 @@ function setLanguage(lang){
   currentLang = lang;
   try{ localStorage.setItem('calmflight_lang', lang); }catch(e){}
   applyStaticTranslations();
+  if(breatheRefreshLabels) breatheRefreshLabels();
   if(lastRenderArgs){ renderResults(lastRenderArgs); }
 }
 // ---------- end i18n ----------
@@ -1588,6 +1702,87 @@ if(langSelect){
   langSelect.value = currentLang;
   langSelect.addEventListener('change', ()=> setLanguage(langSelect.value));
 }
+
+// ---------- guided breathing (offline, no network involved at all) ----------
+// Box breathing: 4s inhale, 4s hold, 4s exhale, 4s hold — used by pilots and
+// first responders. Pure CSS transition + a 1s tick for the countdown text,
+// nothing here ever touches the network, so it works mid-flight with no signal.
+let breatheRefreshLabels = null;
+(function initBreathing(){
+  const circle = document.getElementById('breathe-circle');
+  const phaseEl = document.getElementById('breathe-phase');
+  const countEl = document.getElementById('breathe-count');
+  const btn = document.getElementById('breathe-btn');
+  if(!circle || !btn) return;
+
+  const PHASES = [
+    {key:'inhale', cls:'inhale', secs:4},
+    {key:'holdFull', cls:'hold-full', secs:4},
+    {key:'exhale', cls:'exhale', secs:4},
+    {key:'holdEmpty', cls:'hold-empty', secs:4}
+  ];
+  let running = false;
+  let timerId = null;
+  let phaseIdx = 0;
+  let secsLeft = PHASES[0].secs;
+
+  function labelFor(key){
+    const map = {
+      inhale: 'breathePhaseInhale',
+      holdFull: 'breathePhaseHold',
+      exhale: 'breathePhaseExhale',
+      holdEmpty: 'breathePhaseHold'
+    };
+    return t(map[key]);
+  }
+
+  function applyPhase(){
+    const p = PHASES[phaseIdx];
+    circle.className = 'breathe-circle ' + p.cls;
+    if(phaseEl) phaseEl.textContent = labelFor(p.key);
+    secsLeft = p.secs;
+    if(countEl) countEl.textContent = secsLeft;
+  }
+
+  function tick(){
+    secsLeft--;
+    if(secsLeft <= 0){
+      phaseIdx = (phaseIdx + 1) % PHASES.length;
+      applyPhase();
+    }else{
+      if(countEl) countEl.textContent = secsLeft;
+    }
+  }
+
+  function start(){
+    running = true;
+    btn.textContent = t('breatheStop');
+    phaseIdx = 0;
+    applyPhase();
+    timerId = setInterval(tick, 1000);
+  }
+
+  function stop(){
+    running = false;
+    btn.textContent = t('breatheStart');
+    if(timerId){ clearInterval(timerId); timerId = null; }
+    circle.className = 'breathe-circle';
+    if(phaseEl) phaseEl.textContent = t('breathePhaseReady');
+    if(countEl) countEl.textContent = '';
+  }
+
+  btn.addEventListener('click', () => { running ? stop() : start(); });
+
+  breatheRefreshLabels = function(){
+    if(running){
+      btn.textContent = t('breatheStop');
+      if(phaseEl) phaseEl.textContent = labelFor(PHASES[phaseIdx].key);
+    }else{
+      btn.textContent = t('breatheStart');
+      if(phaseEl) phaseEl.textContent = t('breathePhaseReady');
+    }
+  };
+})();
 
 const flightInput = document.getElementById('flightnum');
 const flightUnknownCheckbox = document.getElementById('flightnum-unknown');
@@ -1906,13 +2101,28 @@ function slerpPoints(p1, p2, n){
   const dot = x1*x2+y1*y2+z1*z2;
   const theta = Math.acos(Math.min(1,Math.max(-1,dot)));
 
+  // Vicino agli antipodi (~180° di distanza, es. Tokyo-Rio) la formula dello slerp
+  // diventa numericamente instabile (si divide per un seno vicino a zero da entrambi
+  // i lati), ed è proprio lì che la rotta disegnata "impazziva". In quella fascia
+  // passo a una semplice interpolazione lineare in 3D poi normalizzata: resta stabile
+  // e continua, anche se — geometricamente, non per un limite del codice — vicino
+  // agli antipodi non esiste comunque un'unica "rotta più breve" univoca.
+  const nearAntipodal = theta > Math.PI - 1e-3;
+
   const pts = [];
   for(let i=0;i<n;i++){
     const f = n===1 ? 0 : i/(n-1);
     if(theta < 1e-6){ pts.push({lat:p1.lat, lon:p1.lon}); continue; }
-    const A = Math.sin((1-f)*theta)/Math.sin(theta);
-    const B = Math.sin(f*theta)/Math.sin(theta);
-    const x = A*x1 + B*x2, y = A*y1 + B*y2, z = A*z1 + B*z2;
+    let x, y, z;
+    if(nearAntipodal){
+      x = x1 + (x2-x1)*f; y = y1 + (y2-y1)*f; z = z1 + (z2-z1)*f;
+      const len = Math.sqrt(x*x+y*y+z*z) || 1;
+      x/=len; y/=len; z/=len;
+    }else{
+      const A = Math.sin((1-f)*theta)/Math.sin(theta);
+      const B = Math.sin(f*theta)/Math.sin(theta);
+      x = A*x1 + B*x2; y = A*y1 + B*y2; z = A*z1 + B*z2;
+    }
     const lat = Math.atan2(z, Math.sqrt(x*x+y*y));
     const lon = Math.atan2(y,x);
     pts.push({lat:toDeg(lat), lon:toDeg(lon)});
