@@ -2508,78 +2508,88 @@ function initForecastMap(depPt, arrPt, waypoints, cloudFrames){
       }).addTo(skyLeafletMap);
     }
 
-    // route line + city labels
-    if(skyRouteLayer){ skyLeafletMap.removeLayer(skyRouteLayer); }
+    if(skyRouteLayer){ skyLeafletMap.removeLayer(skyRouteLayer); skyRouteLayer = null; }
     if(skyCloudLayer){ skyLeafletMap.removeLayer(skyCloudLayer); skyCloudLayer = null; }
     if(skyGuideMarker){ skyLeafletMap.removeLayer(skyGuideMarker); skyGuideMarker = null; }
 
     const depLL = [depPt.lat, depPt.lon];
     const arrLL = [arrPt.lat, arrPt.lon];
     skyRouteLatLngs = [depLL, arrLL];
-    const depDot = L.circleMarker(depLL, {radius:5, color:'#5FA8D3', weight:2, fillColor:'#EAF1F8', fillOpacity:1});
-    const arrDot = L.circleMarker(arrLL, {radius:5, color:'#5FA8D3', weight:2, fillColor:'#EAF1F8', fillOpacity:1});
-    const depName = escapeXml(depPt.compactLabel || depPt.label || '');
-    const arrName = escapeXml(arrPt.compactLabel || arrPt.label || '');
-    const depTag = L.marker(depLL, {
-      icon: L.divIcon({className:'sky-city-tag', html:`<span>${depName}</span>`, iconAnchor:[-10,6]}),
-      interactive:false
-    });
-    const arrTag = L.marker(arrLL, {
-      icon: L.divIcon({className:'sky-city-tag', html:`<span>${arrName}</span>`, iconAnchor:[-10,6]}),
-      interactive:false
-    });
-    const routeLine = L.polyline([depLL, arrLL], {color:'#5FA8D3', weight:2, opacity:0.85, dashArray:'1 7'});
-
-    // cloud-cover forecast markers, one per sampled waypoint along the route;
-    // each carries a lookup so skyShowFrame can pull its value for any hour,
-    // plus a small "62%" label so the change over time is unmistakable, not
-    // just a subtle shift in a translucent circle's opacity.
-    const cloudMarkers = waypoints.map((wp, i) => {
-      const m = L.circleMarker([wp.lat, wp.lon], {
-        radius: 30, weight: 1, fillOpacity: 0.15, opacity: 0.1,
-        fillColor:'#EAF1F8', color:'#EAF1F8', interactive:false
-      });
-      m._cfCloudFor = (frame) => (frame.points[i] ? frame.points[i].cloud : null);
-      const label = L.marker([wp.lat, wp.lon], {
-        icon: L.divIcon({className:'sky-cloud-pct', html:'<span>—</span>', iconSize:[34,16], iconAnchor:[17,8]}),
-        interactive:false
-      });
-      m._cfLabelMarker = label;
-      return m;
-    });
-    const cloudLabels = cloudMarkers.map(m => m._cfLabelMarker);
-
-    skyCloudLayer = L.layerGroup(cloudMarkers).addTo(skyLeafletMap);
-    skyRouteLayer = L.layerGroup([routeLine, depDot, arrDot, depTag, arrTag, ...cloudLabels]).addTo(skyLeafletMap);
-    skyGuideMarker = L.circleMarker(depLL, {
-      radius:8, color:'#0F1B2E', weight:3, fillColor:'#E7A94C', fillOpacity:1
-    }).addTo(skyLeafletMap);
+    const routeBounds = L.latLngBounds([depLL, arrLL]);
 
     // Il pannello può ancora essere nel mezzo del layout (appena reso visibile),
-    // quindi il contenitore potrebbe non avere ancora dimensioni corrette: prima
-    // sistemo la size, POI calcolo lo zoom sulla rotta — nell'ordine sbagliato
-    // Leaflet parte con uno zoom azzerato (mondo intero in 1-2 tile) e non si corregge da solo.
-    const routeBounds = routeLine.getBounds();
+    // quindi il contenitore potrebbe non avere ancora dimensioni corrette: se
+    // aggiungiamo rotta/marker PRIMA che la mappa abbia una size/vista valide,
+    // Leaflet ne calcola la posizione su coordinate sbagliate e restano
+    // invisibili anche dopo — bisogna prima sistemare size+zoom, POI disegnare
+    // sopra tutto il resto.
     setTimeout(() => {
-      skyLeafletMap.invalidateSize();
-      skyLeafletMap.fitBounds(routeBounds, {padding:[28,28]});
+      try{
+        skyLeafletMap.invalidateSize();
+        skyLeafletMap.fitBounds(routeBounds, {padding:[28,28]});
+
+      const depDot = L.circleMarker(depLL, {radius:5, color:'#5FA8D3', weight:2, fillColor:'#EAF1F8', fillOpacity:1});
+      const arrDot = L.circleMarker(arrLL, {radius:5, color:'#5FA8D3', weight:2, fillColor:'#EAF1F8', fillOpacity:1});
+      const depName = escapeXml(depPt.compactLabel || depPt.label || '');
+      const arrName = escapeXml(arrPt.compactLabel || arrPt.label || '');
+      const depTag = L.marker(depLL, {
+        icon: L.divIcon({className:'sky-city-tag', html:`<span>${depName}</span>`, iconAnchor:[-10,6]}),
+        interactive:false
+      });
+      const arrTag = L.marker(arrLL, {
+        icon: L.divIcon({className:'sky-city-tag', html:`<span>${arrName}</span>`, iconAnchor:[-10,6]}),
+        interactive:false
+      });
+      const routeLine = L.polyline([depLL, arrLL], {color:'#5FA8D3', weight:2, opacity:0.85, dashArray:'1 7'});
+
+      // cloud-cover forecast markers, one per sampled waypoint along the route;
+      // each carries a lookup so skyShowFrame can pull its value for any hour,
+      // plus a small "62%" label so the change over time is unmistakable, not
+      // just a subtle shift in a translucent circle's opacity.
+      const cloudMarkers = waypoints.map((wp, i) => {
+        const m = L.circleMarker([wp.lat, wp.lon], {
+          radius: 30, weight: 1, fillOpacity: 0.15, opacity: 0.1,
+          fillColor:'#EAF1F8', color:'#EAF1F8', interactive:false
+        });
+        m._cfCloudFor = (frame) => (frame.points[i] ? frame.points[i].cloud : null);
+        const label = L.marker([wp.lat, wp.lon], {
+          icon: L.divIcon({className:'sky-cloud-pct', html:'<span>—</span>', iconSize:[34,16], iconAnchor:[17,8]}),
+          interactive:false
+        });
+        m._cfLabelMarker = label;
+        return m;
+      });
+      const cloudLabels = cloudMarkers.map(m => m._cfLabelMarker);
+
+      skyCloudLayer = L.layerGroup(cloudMarkers).addTo(skyLeafletMap);
+      skyRouteLayer = L.layerGroup([routeLine, depDot, arrDot, depTag, arrTag, ...cloudLabels]).addTo(skyLeafletMap);
+      skyGuideMarker = L.circleMarker(depLL, {
+        radius:8, color:'#0F1B2E', weight:3, fillColor:'#E7A94C', fillOpacity:1
+      }).addTo(skyLeafletMap);
+
+      skySetPlaying(false);
+
+      if(!cloudFrames || !cloudFrames.length){
+        statusEl.textContent = t('skyMapError');
+        statusEl.style.display = 'block';
+        return;
+      }
+
+      skyFrames = cloudFrames;
+      skyFrameIdx = 0;
+      const slider = document.getElementById('sky-slider');
+      slider.max = skyFrames.length - 1;
+      slider.value = 0;
+      skyShowFrame(0);
+      statusEl.style.display = 'none';
+      }catch(err){
+        console.error('forecast map draw error:', err.message || err);
+        if(statusEl){
+          statusEl.textContent = t('skyMapError');
+          statusEl.style.display = 'block';
+        }
+      }
     }, 60);
-
-    skySetPlaying(false);
-
-    if(!cloudFrames || !cloudFrames.length){
-      statusEl.textContent = t('skyMapError');
-      statusEl.style.display = 'block';
-      return;
-    }
-
-    skyFrames = cloudFrames;
-    skyFrameIdx = 0;
-    const slider = document.getElementById('sky-slider');
-    slider.max = skyFrames.length - 1;
-    slider.value = 0;
-    skyShowFrame(0);
-    statusEl.style.display = 'none';
   }catch(err){
     console.error('forecast map error:', err.message || err);
     if(statusEl){

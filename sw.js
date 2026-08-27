@@ -3,7 +3,7 @@
 // connessione instabile, MA senza mai mettere in cache i dati meteo, che
 // devono sempre essere richiesti freschi dalla rete.
 
-const CACHE_NAME = 'calmflight-shell-v4';
+const CACHE_NAME = 'calmflight-shell-v5';
 
 const APP_SHELL = [
   './',
