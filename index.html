@@ -2141,23 +2141,39 @@ function escapeXml(s){
 }
 
 // ---------- unified route map: real geography + turbulence colors + animated plane ----------
-function turbulenceAt(t, scores){
-  const n = scores.length;
-  const scaledT = t*(n-1);
-  const i0 = Math.max(0, Math.min(n-1, Math.floor(scaledT)));
-  const i1 = Math.min(n-1, i0+1);
-  const frac = scaledT - i0;
-  return scores[i0].total + (scores[i1].total - scores[i0].total)*frac;
+// Costruisce le distanze cumulative reali tra i punti campionati, così
+// l'animazione può avanzare a velocità costante nello spazio (non a tempo
+// costante per tratto) — su rotte lunghe i tratti tra un punto e l'altro
+// hanno lunghezze molto diverse, e senza questo l'aereo "scatta" veloce
+// sui tratti lunghi e striscia su quelli brevi.
+function buildArcLength(waypoints){
+  const cum = [0];
+  for(let i=1;i<waypoints.length;i++){
+    cum.push(cum[i-1] + haversineKm(waypoints[i-1], waypoints[i]));
+  }
+  return cum;
 }
 
-function routePointAt(t, waypoints){
-  const n = waypoints.length;
-  const scaledT = t*(n-1);
-  const i0 = Math.max(0, Math.min(n-1, Math.floor(scaledT)));
-  const i1 = Math.min(n-1, i0+1);
-  const frac = scaledT - i0;
-  const lat = waypoints[i0].lat + (waypoints[i1].lat - waypoints[i0].lat)*frac;
-  const lon = waypoints[i0].lon + (waypoints[i1].lon - waypoints[i0].lon)*frac;
+function fractionAlongRoute(t, cumDist){
+  const total = cumDist[cumDist.length-1];
+  const target = t*total;
+  let i0 = 0;
+  while(i0 < cumDist.length-2 && cumDist[i0+1] < target) i0++;
+  const i1 = Math.min(cumDist.length-1, i0+1);
+  const segLen = cumDist[i1] - cumDist[i0];
+  const localFrac = segLen > 0 ? (target - cumDist[i0]) / segLen : 0;
+  return {i0, i1, localFrac};
+}
+
+function turbulenceAt(t, scores, cumDist){
+  const {i0, i1, localFrac} = fractionAlongRoute(t, cumDist);
+  return scores[i0].total + (scores[i1].total - scores[i0].total)*localFrac;
+}
+
+function routePointAt(t, waypoints, cumDist){
+  const {i0, i1, localFrac} = fractionAlongRoute(t, cumDist);
+  const lat = waypoints[i0].lat + (waypoints[i1].lat - waypoints[i0].lat)*localFrac;
+  const lon = waypoints[i0].lon + (waypoints[i1].lon - waypoints[i0].lon)*localFrac;
   return [lat, lon];
 }
 
@@ -2273,14 +2289,15 @@ function drawRouteMap(depPt, arrPt, waypoints, scores, wpTimes){
 
         const depTime = wpTimes && wpTimes[0] ? wpTimes[0].getTime() : null;
         const arrTime = wpTimes && wpTimes[n-1] ? wpTimes[n-1].getTime() : null;
+        const cumDist = buildArcLength(waypoints);
 
         function placePlane(t){
-          const pos = routePointAt(t, waypoints);
-          const ahead = routePointAt(Math.min(1, t+0.01), waypoints);
+          const pos = routePointAt(t, waypoints, cumDist);
+          const ahead = routePointAt(Math.min(1, t+0.01), waypoints, cumDist);
           const bearing = skyBearingDeg(pos, ahead);
           skyGuideMarker.setLatLng(pos);
           const el = skyGuideMarker.getElement && skyGuideMarker.getElement();
-          const curScore = turbulenceAt(t, scores);
+          const curScore = turbulenceAt(t, scores, cumDist);
           const bb = bucket(curScore);
           if(el){
             const rot = el.querySelector('.sky-plane-rot');
@@ -2293,9 +2310,9 @@ function drawRouteMap(depPt, arrPt, waypoints, scores, wpTimes){
               // l'intensità (scuotimento + lieve rollio) scala con l'indice di quel punto.
               const shake = Math.max(0, (curScore - 35) / 65);
               if(shake > 0){
-                const jx = (Math.random()-0.5) * 2 * shake * 3;
-                const jy = (Math.random()-0.5) * 2 * shake * 3;
-                const jr = (Math.random()-0.5) * 2 * shake * 8;
+                const jx = (Math.random()-0.5) * 2 * shake * 2;
+                const jy = (Math.random()-0.5) * 2 * shake * 2;
+                const jr = (Math.random()-0.5) * 2 * shake * 5;
                 rot.style.transform = `translate(${jx.toFixed(2)}px, ${jy.toFixed(2)}px) rotate(${(baseAngle+jr).toFixed(1)}deg)`;
               }else{
                 rot.style.transform = `rotate(${baseAngle.toFixed(1)}deg)`;
@@ -2316,7 +2333,7 @@ function drawRouteMap(depPt, arrPt, waypoints, scores, wpTimes){
         const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         if(reducedMotion){
           let peakT = 0, peakScore = -1;
-          for(let i=0;i<=40;i++){ const tt=i/40; const sc=turbulenceAt(tt, scores); if(sc>peakScore){ peakScore=sc; peakT=tt; } }
+          for(let i=0;i<=40;i++){ const tt=i/40; const sc=turbulenceAt(tt, scores, cumDist); if(sc>peakScore){ peakScore=sc; peakT=tt; } }
           placePlane(peakT);
         }else{
           const DURATION = 9000;
