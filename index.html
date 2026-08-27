@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title data-i18n-title="pageTitle">CalmFlight – Turbulence Forecast</title>
-<link rel="manifest" href="/manifest.json">
+<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0F1B2E">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -2851,7 +2851,7 @@ function renderResults(args){
 <script>
   if('serviceWorker' in navigator){
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
+      navigator.serviceWorker.register('sw.js').catch(() => {});
     });
   }
 </script>
