@@ -2280,12 +2280,27 @@ function drawRouteMap(depPt, arrPt, waypoints, scores, wpTimes){
           const bearing = skyBearingDeg(pos, ahead);
           skyGuideMarker.setLatLng(pos);
           const el = skyGuideMarker.getElement && skyGuideMarker.getElement();
+          const curScore = turbulenceAt(t, scores);
+          const bb = bucket(curScore);
           if(el){
             const rot = el.querySelector('.sky-plane-rot');
             const label = el.querySelector('.sky-plane-label');
-            if(rot) rot.style.transform = `rotate(${bearing}deg)`;
-            const curScore = turbulenceAt(t, scores);
-            const bb = bucket(curScore);
+            if(rot){
+              // L'icona è disegnata puntando verso destra (est = 90° di rotta),
+              // quindi va compensata di -90° per allinearla alla vera direzione di volo.
+              const baseAngle = bearing - 90;
+              // Quando l'aereo attraversa un tratto turbolento lo faccio vibrare un po':
+              // l'intensità (scuotimento + lieve rollio) scala con l'indice di quel punto.
+              const shake = Math.max(0, (curScore - 35) / 65);
+              if(shake > 0){
+                const jx = (Math.random()-0.5) * 2 * shake * 3;
+                const jy = (Math.random()-0.5) * 2 * shake * 3;
+                const jr = (Math.random()-0.5) * 2 * shake * 8;
+                rot.style.transform = `translate(${jx.toFixed(2)}px, ${jy.toFixed(2)}px) rotate(${(baseAngle+jr).toFixed(1)}deg)`;
+              }else{
+                rot.style.transform = `rotate(${baseAngle.toFixed(1)}deg)`;
+              }
+            }
             if(label){
               label.style.color = bb.colorHex;
               if(depTime != null && arrTime != null){
