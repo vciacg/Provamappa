@@ -297,18 +297,15 @@
     pointer-events:none;
   }
   .sky-cloud-pct{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:11px;
-    font-weight:600;
-    color:#0F1B2E;
-    background:rgba(234,241,248,0.9);
-    padding:1px 6px;
-    border-radius:10px;
-    text-align:center;
-    white-space:nowrap;
-    pointer-events:none;
+    display:none;
   }
-  #sky-map .leaflet-interactive{transition:fill-opacity 400ms ease, opacity 400ms ease;}
+  .sky-plane-icon{pointer-events:none;}
+  .sky-plane-rot{
+    width:26px;height:26px;
+    transition:left 350ms linear, top 350ms linear;
+    filter:drop-shadow(0 1px 3px rgba(0,0,0,0.5));
+  }
+  #sky-map .leaflet-interactive{transition:stroke 400ms ease, stroke-opacity 400ms ease, stroke-width 400ms ease;}
   #sky-map .leaflet-control-attribution{
     background:rgba(15,27,46,0.72)!important;
     color:var(--text-muted)!important;
@@ -845,6 +842,7 @@ let skyRouteLayer = null;
 let skyCloudLayer = null;     // layer group of cloud-cover circle markers, redrawn per frame
 let skyGuideMarker = null;    // marker showing the plane's estimated position at the current frame
 let skyRouteLatLngs = null;   // [depLL, arrLL] for interpolating the guide marker
+let skyGuideBearing = 0;      // fixed heading (deg) for the little plane icon
 let skyFrames = [];
 let skyFrameIdx = 0;
 let skyPlaying = false;
@@ -885,7 +883,7 @@ const TRANSLATIONS = {
     "legendHigh": "more agitated conditions",
     "routeMapNote": "The plane travels the route showing, in real time, the simulated clock time and the turbulence index at that point; the fixed times above the markers show instead when, according to the simulation, it actually gets there.",
     "skyMapTitle": "Cloud forecast along the route",
-    "skyMapNote": "Forecast cloud cover along the route, hour by hour from departure to arrival for the date and time you picked — based on weather models, not a photo. The orange dot shows roughly where the plane would be at that hour.",
+    "skyMapNote": "The plane moves along the route hour by hour, from departure to arrival, for the date and time you picked. Where the line gets lighter and thicker, the forecast calls for more cloud along that stretch — it's a weather model, not a photo.",
     "skyMapLoading": "Loading satellite frames…",
     "skyMapError": "Satellite imagery is not available right now. The rest of the forecast is unaffected.",
     "skyMapToday": "Today",
@@ -1008,7 +1006,7 @@ const TRANSLATIONS = {
     "legendHigh": "condizioni più agitate",
     "routeMapNote": "L'aereo percorre la rotta mostrando in tempo reale l'orario simulato e l'indice di turbolenza in quel punto; gli orari fissi sopra ai marker indicano invece quando, secondo la simulazione, ci si arriva davvero.",
     "skyMapTitle": "Previsione nuvole lungo la rotta",
-    "skyMapNote": "Previsione della copertura nuvolosa lungo la rotta, ora per ora dalla partenza all'arrivo, per la data e l'orario che hai scelto — basata su modelli meteo, non è una foto. Il puntino arancione mostra all'incirca dove si troverebbe l'aereo in quell'ora.",
+    "skyMapNote": "L'aereo si sposta lungo la rotta ora per ora, dalla partenza all'arrivo, per la data e l'orario che hai scelto. Dove la linea diventa più chiara e spessa, il modello prevede più nuvole in quel tratto — è una previsione meteo, non una foto.",
     "skyMapLoading": "Caricamento fotogrammi satellitari…",
     "skyMapError": "Le immagini satellitari non sono disponibili al momento. Il resto della previsione non ne risente.",
     "skyMapToday": "Oggi",
@@ -1131,7 +1129,7 @@ const TRANSLATIONS = {
     "legendHigh": "condiciones más agitadas",
     "routeMapNote": "El avión recorre la ruta mostrando en tiempo real la hora simulada y el índice de turbulencia en ese punto; las horas fijas sobre los marcadores indican, en cambio, cuándo llega realmente según la simulación.",
     "skyMapTitle": "Previsión de nubes en la ruta",
-    "skyMapNote": "Previsión de la cobertura de nubes en la ruta, hora a hora desde la salida hasta la llegada, para la fecha y hora que elegiste — basada en modelos meteorológicos, no es una foto. El punto naranja muestra aproximadamente dónde estaría el avión en esa hora.",
+    "skyMapNote": "El avión se desplaza por la ruta hora a hora, desde la salida hasta la llegada, para la fecha y hora que elegiste. Donde la línea se vuelve más clara y gruesa, el modelo prevé más nubes en ese tramo — es un modelo meteorológico, no una foto.",
     "skyMapLoading": "Cargando fotogramas satelitales…",
     "skyMapError": "Las imágenes satelitales no están disponibles en este momento. El resto del pronóstico no se ve afectado.",
     "skyMapToday": "Hoy",
@@ -1254,7 +1252,7 @@ const TRANSLATIONS = {
     "legendHigh": "conditions plus agitées",
     "routeMapNote": "L'avion parcourt l'itinéraire en affichant en temps réel l'heure simulée et l'indice de turbulence à ce point ; les heures fixes au-dessus des marqueurs indiquent en revanche quand, selon la simulation, il y arrive réellement.",
     "skyMapTitle": "Prévision des nuages sur l'itinéraire",
-    "skyMapNote": "Prévision de la couverture nuageuse le long de l'itinéraire, heure par heure du départ à l'arrivée, pour la date et l'heure choisies — basée sur des modèles météo, ce n'est pas une photo. Le point orange indique à peu près où se trouverait l'avion à cette heure-là.",
+    "skyMapNote": "L'avion se déplace le long de l'itinéraire heure par heure, du départ à l'arrivée, pour la date et l'heure choisies. Là où la ligne devient plus claire et plus épaisse, le modèle prévoit plus de nuages sur ce tronçon — c'est un modèle météo, pas une photo.",
     "skyMapLoading": "Chargement des images satellite…",
     "skyMapError": "Les images satellite ne sont pas disponibles pour le moment. Le reste de la prévision n'est pas affecté.",
     "skyMapToday": "Aujourd'hui",
@@ -1377,7 +1375,7 @@ const TRANSLATIONS = {
     "legendHigh": "更剧烈的状况",
     "routeMapNote": "飞机图标沿航线移动，实时显示该点的模拟时间和湍流指数；标记上方的固定时间则表示模拟中实际到达该点的时刻。",
     "skyMapTitle": "航线云量预报",
-    "skyMapNote": "沿航线的云量预报，按小时展示从起飞到抵达（基于你选择的日期和时间）——这是天气模型的预测结果，并非实拍照片。橙色圆点大致表示飞机在该时刻可能所处的位置。",
+    "skyMapNote": "飞机按小时沿航线移动，从起飞到抵达，基于你选择的日期和时间。航线颜色变浅、变粗的地方，表示模型预测那一段云量较多——这是天气模型预测，并非实拍照片。",
     "skyMapLoading": "正在加载卫星图像…",
     "skyMapError": "卫星图像暂时不可用，不影响其余预测内容。",
     "skyMapToday": "今天",
@@ -1500,7 +1498,7 @@ const TRANSLATIONS = {
     "legendHigh": "condições mais agitadas",
     "routeMapNote": "O avião percorre a rota mostrando em tempo real o horário simulado e o índice de turbulência naquele ponto; os horários fixos acima dos marcadores indicam quando, segundo a simulação, ele realmente chega lá.",
     "skyMapTitle": "Previsão de nuvens ao longo da rota",
-    "skyMapNote": "Previsão da cobertura de nuvens ao longo da rota, hora a hora da partida até a chegada, para a data e horário escolhidos — baseada em modelos meteorológicos, não é uma foto. O ponto laranja mostra aproximadamente onde estaria o avião naquela hora.",
+    "skyMapNote": "O avião se move ao longo da rota hora a hora, da partida até a chegada, para a data e o horário escolhidos. Onde a linha fica mais clara e mais grossa, o modelo prevê mais nuvens naquele trecho — é um modelo meteorológico, não uma foto.",
     "skyMapLoading": "Carregando quadros de satélite…",
     "skyMapError": "As imagens de satélite não estão disponíveis no momento. O resto da previsão não é afetado.",
     "skyMapToday": "Hoje",
@@ -2410,11 +2408,21 @@ function skyStopTimer(){
 }
 
 function skyCloudColor(cloudPct){
-  // Light, airy dots when clear; denser white-grey the more cloud cover forecast.
-  if(cloudPct == null) return {fill:'#5A7092', opacity:0.18};
+  // Linea sottile e limpida col cielo sereno, più chiara/spessa e "sfumata"
+  // dove il modello prevede più nuvole lungo quel tratto.
+  if(cloudPct == null) return {color:'#5A7092', opacity:0.5, weight:3};
   const t = Math.max(0, Math.min(100, cloudPct)) / 100;
-  const opacity = 0.10 + t*0.55;
-  return {fill:'#EAF1F8', opacity};
+  const color = t < 0.5 ? '#5FA8D3' : '#EAF1F8';
+  const opacity = 0.55 + t*0.4;
+  const weight = 3 + t*4;
+  return {color, opacity, weight};
+}
+
+function skyBearingDeg(p1, p2){
+  const toRad = d => d * Math.PI/180, toDeg = r => r * 180/Math.PI;
+  const y = Math.sin(toRad(p2[1]-p1[1])) * Math.cos(toRad(p2[0]));
+  const x = Math.cos(toRad(p1[0]))*Math.sin(toRad(p2[0])) - Math.sin(toRad(p1[0]))*Math.cos(toRad(p2[0]))*Math.cos(toRad(p2[1]-p1[1]));
+  return (toDeg(Math.atan2(y, x)) + 360) % 360;
 }
 
 function skyUpdateGuideMarker(fraction){
@@ -2423,6 +2431,11 @@ function skyUpdateGuideMarker(fraction){
   const lat = dep[0] + (arr[0]-dep[0]) * fraction;
   const lon = dep[1] + (arr[1]-dep[1]) * fraction;
   skyGuideMarker.setLatLng([lat, lon]);
+  const el = skyGuideMarker.getElement && skyGuideMarker.getElement();
+  if(el){
+    const inner = el.querySelector('.sky-plane-rot');
+    if(inner) inner.style.transform = `rotate(${skyGuideBearing}deg)`;
+  }
 }
 
 function skyShowFrame(idx){
@@ -2431,7 +2444,7 @@ function skyShowFrame(idx){
   const frame = skyFrames[skyFrameIdx];
 
   // Aggiorno prima orario/slider (sempre, indipendentemente dal resto) così
-  // anche se il ridisegno di un singolo marker desse un problema, il tempo
+  // anche se il ridisegno di un segmento desse un problema, il tempo
   // continua comunque ad avanzare invece di restare bloccato.
   const slider = document.getElementById('sky-slider');
   const timeEl = document.getElementById('sky-time');
@@ -2439,24 +2452,15 @@ function skyShowFrame(idx){
   if(timeEl) timeEl.textContent = `${skyFrameLabel(frame.time, frame.hourOffset)}  ·  ${skyFrameIdx+1}/${skyFrames.length}`;
   skyUpdateGuideMarker(frame.fraction);
 
-  // Redraw the cloud markers for this hour — pure vector update, no network
-  // fetch involved, so there's no stutter waiting for tiles to download.
+  // Ridisegno i segmenti della rotta per quest'ora — solo un cambio di
+  // colore/spessore su una linea già a schermo, nessuna rete coinvolta.
   skyCloudLayer.eachLayer(layer => {
     try{
       const cloud = layer._cfCloudFor(frame);
       const style = skyCloudColor(cloud);
-      layer.setStyle({fillColor: style.fill, fillOpacity: style.opacity, color: style.fill, opacity: style.opacity*0.6});
-      if(layer._cfLabelMarker){
-        const pct = cloud == null ? '—' : `${Math.round(cloud)}%`;
-        layer._cfLabelMarker.setIcon(L.divIcon({
-          className: 'sky-cloud-pct',
-          html: `<span>${pct}</span>`,
-          iconSize: [34, 16],
-          iconAnchor: [17, 8]
-        }));
-      }
+      layer.setStyle({color: style.color, opacity: style.opacity, weight: style.weight});
     }catch(err){
-      console.error('sky marker redraw error:', err.message || err);
+      console.error('sky segment redraw error:', err.message || err);
     }
   });
 }
@@ -2540,31 +2544,42 @@ function initForecastMap(depPt, arrPt, waypoints, cloudFrames){
         icon: L.divIcon({className:'sky-city-tag', html:`<span>${arrName}</span>`, iconAnchor:[-10,6]}),
         interactive:false
       });
-      const routeLine = L.polyline([depLL, arrLL], {color:'#5FA8D3', weight:2, opacity:0.85, dashArray:'1 7'});
 
-      // cloud-cover forecast markers, one per sampled waypoint along the route;
-      // each carries a lookup so skyShowFrame can pull its value for any hour,
-      // plus a small "62%" label so the change over time is unmistakable, not
-      // just a subtle shift in a translucent circle's opacity.
-      const cloudMarkers = waypoints.map((wp, i) => {
-        const m = L.circleMarker([wp.lat, wp.lon], {
-          radius: 30, weight: 1, fillOpacity: 0.15, opacity: 0.1,
-          fillColor:'#EAF1F8', color:'#EAF1F8', interactive:false
-        });
-        m._cfCloudFor = (frame) => (frame.points[i] ? frame.points[i].cloud : null);
-        const label = L.marker([wp.lat, wp.lon], {
-          icon: L.divIcon({className:'sky-cloud-pct', html:'<span>—</span>', iconSize:[34,16], iconAnchor:[17,8]}),
-          interactive:false
-        });
-        m._cfLabelMarker = label;
-        return m;
-      });
-      const cloudLabels = cloudMarkers.map(m => m._cfLabelMarker);
+      // La rotta è spezzata in tratti tra un punto campionato e il successivo:
+      // ogni tratto viene colorato/ispessito in base alla nuvolosità prevista
+      // in quel punto, così basta guardare la linea per capire dove sono le
+      // nuvole, senza numeri da interpretare.
+      const routeSegments = [];
+      for(let i = 0; i < waypoints.length - 1; i++){
+        const a = [waypoints[i].lat, waypoints[i].lon];
+        const b = [waypoints[i+1].lat, waypoints[i+1].lon];
+        const seg = L.polyline([a, b], {color:'#5FA8D3', weight:3, opacity:0.55, lineCap:'round'});
+        seg._cfCloudFor = (frame) => {
+          const c1 = frame.points[i] ? frame.points[i].cloud : null;
+          const c2 = frame.points[i+1] ? frame.points[i+1].cloud : null;
+          if(c1 == null && c2 == null) return null;
+          if(c1 == null) return c2;
+          if(c2 == null) return c1;
+          return (c1 + c2) / 2;
+        };
+        routeSegments.push(seg);
+      }
 
-      skyCloudLayer = L.layerGroup(cloudMarkers).addTo(skyLeafletMap);
-      skyRouteLayer = L.layerGroup([routeLine, depDot, arrDot, depTag, arrTag, ...cloudLabels]).addTo(skyLeafletMap);
-      skyGuideMarker = L.circleMarker(depLL, {
-        radius:8, color:'#0F1B2E', weight:3, fillColor:'#E7A94C', fillOpacity:1
+      skyGuideBearing = skyBearingDeg(depLL, arrLL);
+      const planeIconHtml = `
+        <div class="sky-plane-rot" style="transform:rotate(${skyGuideBearing}deg)">
+          <svg width="26" height="26" viewBox="-16 -16 32 32">
+            <path d="M -12,-1.6 L 9,-1.8 Q 15,0 9,1.8 L -12,1.6 Q -14,0 -12,-1.6 Z" fill="#E7A94C" stroke="#0F1B2E" stroke-width="1"/>
+            <path d="M -2,-1.1 L -9,-10 L -5,-9 L 3,-1.6 Z" fill="#E7A94C" stroke="#0F1B2E" stroke-width="0.8"/>
+            <path d="M -2,1.1 L -9,10 L -5,9 L 3,1.6 Z" fill="#E7A94C" stroke="#0F1B2E" stroke-width="0.8"/>
+          </svg>
+        </div>`;
+
+      skyCloudLayer = L.layerGroup(routeSegments).addTo(skyLeafletMap);
+      skyRouteLayer = L.layerGroup([depDot, arrDot, depTag, arrTag]).addTo(skyLeafletMap);
+      skyGuideMarker = L.marker(depLL, {
+        icon: L.divIcon({className:'sky-plane-icon', html: planeIconHtml, iconSize:[26,26], iconAnchor:[13,13]}),
+        interactive:false
       }).addTo(skyLeafletMap);
 
       skySetPlaying(false);
