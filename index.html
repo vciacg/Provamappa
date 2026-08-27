@@ -254,7 +254,6 @@
     color:var(--text-muted);
   }
   svg#strip{width:100%;height:auto;display:block;margin-top:10px;}
-  svg#mini-map{width:100%;height:auto;display:block;margin-top:6px;}
   .map-legend{
     display:flex;
     flex-wrap:wrap;
@@ -296,78 +295,37 @@
     white-space:nowrap;
     pointer-events:none;
   }
-  .sky-cloud-pct{
-    display:none;
+  .sky-time-tag{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:11px;
+    font-weight:600;
+    color:var(--text-primary);
+    text-shadow:0 1px 3px rgba(0,0,0,0.8), 0 0 6px rgba(0,0,0,0.6);
+    white-space:nowrap;
+    pointer-events:none;
   }
   .sky-plane-icon{pointer-events:none;}
-  .sky-plane-rot{
-    width:26px;height:26px;
-    transition:left 350ms linear, top 350ms linear;
-    filter:drop-shadow(0 1px 3px rgba(0,0,0,0.5));
+  .sky-plane-wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    filter:drop-shadow(0 1px 3px rgba(0,0,0,0.6));
   }
-  #sky-map .leaflet-interactive{transition:stroke 400ms ease, stroke-opacity 400ms ease, stroke-width 400ms ease;}
+  .sky-plane-rot{width:26px;height:26px;}
+  .sky-plane-label{
+    margin-top:2px;
+    font-family:'Space Grotesk',sans-serif;
+    font-size:11px;
+    font-weight:700;
+    white-space:nowrap;
+    text-shadow:0 1px 3px rgba(0,0,0,0.9), 0 0 6px rgba(0,0,0,0.7);
+  }
   #sky-map .leaflet-control-attribution{
     background:rgba(15,27,46,0.72)!important;
     color:var(--text-muted)!important;
     font-size:9px!important;
   }
   #sky-map .leaflet-control-attribution a{color:var(--accent-calm)!important;}
-  .sky-controls{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    margin-top:12px;
-  }
-  .sky-play-btn{
-    flex-shrink:0;
-    width:34px;height:34px;
-    border-radius:50%;
-    border:1px solid var(--line-strong);
-    background:var(--accent-calm-dim);
-    color:var(--accent-calm);
-    display:flex;align-items:center;justify-content:center;
-    cursor:pointer;
-    font-size:13px;
-    transition:background 0.15s ease;
-  }
-  .sky-play-btn:hover{background:rgba(95,168,211,0.28);}
-  .sky-slider-wrap{flex:1;display:flex;flex-direction:column;gap:4px;}
-  .sky-slider{
-    -webkit-appearance:none;
-    width:100%;height:3px;
-    border-radius:3px;
-    background:var(--line-strong);
-    outline:none;
-    cursor:pointer;
-  }
-  .sky-slider::-webkit-slider-thumb{
-    -webkit-appearance:none;
-    width:13px;height:13px;
-    border-radius:50%;
-    background:var(--accent-calm);
-    border:2px solid var(--bg-panel);
-    box-shadow:0 0 0 1px var(--accent-calm);
-    cursor:pointer;
-  }
-  .sky-slider::-moz-range-thumb{
-    width:13px;height:13px;
-    border-radius:50%;
-    background:var(--accent-calm);
-    border:2px solid var(--bg-panel);
-    cursor:pointer;
-  }
-  .sky-time{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:11px;
-    color:var(--text-muted);
-    letter-spacing:0.02em;
-  }
-  .sky-status{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:11.5px;
-    color:var(--text-muted);
-    margin-top:6px;
-  }
 
   .strip-times{
     display:flex;
@@ -764,29 +722,13 @@
       <div class="strip-top">
         <span class="strip-route" data-i18n="headerRouteBrief">Route at a glance</span>
       </div>
-      <svg id="mini-map" viewBox="0 0 700 210" preserveAspectRatio="none"></svg>
+      <div id="sky-map"></div>
       <div class="map-legend">
         <span class="map-legend-item"><span class="map-dot" style="background:var(--accent-good)"></span><span data-i18n="legendCalm">stable air</span></span>
         <span class="map-legend-item"><span class="map-dot" style="background:var(--accent-warn)"></span><span data-i18n="legendModerate">bumps within the norm</span></span>
         <span class="map-legend-item"><span class="map-dot" style="background:var(--accent-high)"></span><span data-i18n="legendHigh">more agitated conditions</span></span>
       </div>
       <p class="map-note" data-i18n="routeMapNote">The plane travels the route showing, in real time, the simulated clock time and the turbulence index at that point; the fixed times above the markers show instead when, according to the simulation, it actually gets there.</p>
-    </div>
-
-    <div class="strip-card" id="sky-card">
-      <div class="strip-top">
-        <span class="strip-route" data-i18n="skyMapTitle">Cloud forecast along the route</span>
-      </div>
-      <div id="sky-map"></div>
-      <div class="sky-controls">
-        <button type="button" class="sky-play-btn" id="sky-play-btn" aria-label="Play">▶</button>
-        <div class="sky-slider-wrap">
-          <input type="range" class="sky-slider" id="sky-slider" min="0" max="0" value="0" step="1">
-          <span class="sky-time" id="sky-time">—</span>
-        </div>
-      </div>
-      <p class="sky-status" id="sky-status" style="display:none" data-i18n="skyMapError">Satellite imagery is not available right now. The rest of the forecast is unaffected.</p>
-      <p class="map-note" data-i18n="skyMapNote">Forecast cloud cover along the route, hour by hour from departure to arrival for the date and time you picked — based on weather models, not a photo. The orange dot shows roughly where the plane would be at that hour.</p>
     </div>
 
     <div class="factors">
@@ -836,19 +778,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 
-// ---------- forecast cloud map state (persists across searches) ----------
+// ---------- route map state (persists across searches) ----------
 let skyLeafletMap = null;
 let skyRouteLayer = null;
-let skyCloudLayer = null;     // layer group of cloud-cover circle markers, redrawn per frame
-let skyGuideMarker = null;    // marker showing the plane's estimated position at the current frame
-let skyRouteLatLngs = null;   // [depLL, arrLL] for interpolating the guide marker
-let skyGuideBearing = 0;      // fixed heading (deg) for the little plane icon
-let skyFrames = [];
-let skyFrameIdx = 0;
-let skyPlaying = false;
-let skyTimer = null;
+let skyGuideMarker = null;    // the little animated plane marker
+let skyRouteLatLngs = null;   // waypoints as [lat,lon] pairs, for interpolating the plane's position
 let skyAnimId = null;
-let skyLastTick = null;
 
 // ---------- i18n ----------
 const TRANSLATIONS = {
@@ -2036,31 +1971,6 @@ function pickHour(hourlyTimes, targetHourStr){
 // arrival, sampling the forecast cloud cover already fetched for the 5 route
 // waypoints — no extra API calls, and it works for any future date, since it's
 // a forecast model output rather than a satellite photo.
-function buildCloudFrames(waypoints, weatherResults, departureDate, arrivalDate){
-  const startMs = departureDate.getTime();
-  const endMs = Math.max(arrivalDate.getTime(), startMs + 3600000);
-  const totalHours = Math.max(1, Math.round((endMs - startMs) / 3600000));
-  const maxFrames = 8;
-  const step = Math.max(1, Math.ceil(totalHours / maxFrames));
-
-  function frameAt(hourOffset){
-    const frameDate = new Date(startMs + hourOffset*3600000);
-    const targetStr = frameDate.toISOString().slice(0,16);
-    const points = waypoints.map((wp, i) => {
-      const hourly = weatherResults[i] && weatherResults[i].hourly;
-      if(!hourly || !hourly.time || !hourly.time.length) return {lat: wp.lat, lon: wp.lon, cloud: null};
-      const idx = pickHour(hourly.time, targetStr);
-      const cc = hourly.cloud_cover ? hourly.cloud_cover[idx] : null;
-      return {lat: wp.lat, lon: wp.lon, cloud: (cc == null ? null : cc)};
-    });
-    return {hourOffset, time: frameDate, points, fraction: totalHours > 0 ? Math.min(1, hourOffset/totalHours) : 0};
-  }
-
-  const frames = [];
-  for(let h = 0; h <= totalHours; h += step){ frames.push(frameAt(h)); }
-  if(frames[frames.length-1].hourOffset !== totalHours){ frames.push(frameAt(totalHours)); }
-  return frames;
-}
 
 function scoreWaypoint(h, idx){
   const jet250 = h.wind_speed_250hPa?.[idx] ?? 0;
@@ -2095,9 +2005,9 @@ function scoreWaypoint(h, idx){
 }
 
 function bucket(score){
-  if(score < 30) return {key:'good', label:t('bucketLow'), color:'var(--accent-good)', dim:'var(--accent-good-dim)'};
-  if(score < 60) return {key:'warn', label:t('bucketModerate'), color:'var(--accent-warn)', dim:'var(--accent-warn-dim)'};
-  return {key:'high', label:t('bucketHigh'), color:'var(--accent-high)', dim:'var(--accent-high-dim)'};
+  if(score < 30) return {key:'good', label:t('bucketLow'), color:'var(--accent-good)', colorHex:'#6FCF97', dim:'var(--accent-good-dim)'};
+  if(score < 60) return {key:'warn', label:t('bucketModerate'), color:'var(--accent-warn)', colorHex:'#E7A94C', dim:'var(--accent-warn-dim)'};
+  return {key:'high', label:t('bucketHigh'), color:'var(--accent-high)', colorHex:'#E0805C', dim:'var(--accent-high-dim)'};
 }
 
 function compareToClimatology(value, avg, scaleRef){
@@ -2230,192 +2140,29 @@ function escapeXml(s){
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-function weatherIcon(bucketKey, x, y, color){
-  if(bucketKey === 'good'){
-    const rays = [0,45,90,135,180,225,270,315].map(a=>{
-      const rad = a*Math.PI/180;
-      const x1 = (Math.cos(rad)*9).toFixed(1), y1 = (Math.sin(rad)*9).toFixed(1);
-      const x2 = (Math.cos(rad)*12.5).toFixed(1), y2 = (Math.sin(rad)*12.5).toFixed(1);
-      return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="1.6" stroke-linecap="round"/>`;
-    }).join('');
-    return `<g transform="translate(${x.toFixed(1)},${y.toFixed(1)})" opacity="0.95">
-      <circle r="6.5" fill="${color}"/>${rays}
-    </g>`;
-  }
-  if(bucketKey === 'warn'){
-    return `<g transform="translate(${x.toFixed(1)},${y.toFixed(1)})" fill="${color}" opacity="0.95">
-      <ellipse cx="-6" cy="2" rx="7" ry="6"/>
-      <ellipse cx="4" cy="0" rx="9" ry="7.5"/>
-      <ellipse cx="12" cy="3" rx="6" ry="5"/>
-      <rect x="-10" y="3" width="30" height="6" rx="3"/>
-    </g>`;
-  }
-  return `<g transform="translate(${x.toFixed(1)},${y.toFixed(1)})">
-    <g fill="${color}" opacity="0.95">
-      <ellipse cx="-6" cy="0" rx="7" ry="6"/>
-      <ellipse cx="4" cy="-2" rx="9" ry="7.5"/>
-      <ellipse cx="12" cy="1" rx="6" ry="5"/>
-      <rect x="-10" y="1" width="30" height="6" rx="3"/>
-    </g>
-    <path d="M2,8 L-2,16 L2,15 L-1,23 L7,12 L3,13 Z" fill="${color}"/>
-  </g>`;
-}
-
-function drawMap(scores, depLabel, arrLabel, wpTimes){
-  const svg = document.getElementById('mini-map');
-  const GROUND_Y = 160;
-  const P0 = {x:60, y:GROUND_Y}, P2 = {x:640, y:GROUND_Y}, Pc = {x:350, y:44};
-  const bezier = t => ({
-    x: (1-t)**2*P0.x + 2*(1-t)*t*Pc.x + t**2*P2.x,
-    y: (1-t)**2*P0.y + 2*(1-t)*t*Pc.y + t**2*P2.y
-  });
-
-  const pathPts = [];
-  for(let i=0;i<=40;i++) pathPts.push(bezier(i/40));
-  const pathD = pathPts.map((p,i)=> (i===0?'M':'L') + p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ');
-
+// ---------- unified route map: real geography + turbulence colors + animated plane ----------
+function turbulenceAt(t, scores){
   const n = scores.length;
-  const markers = scores.map((s,i)=>{
-    const t = n===1 ? 0 : i/(n-1);
-    const p = bezier(t);
-    const b = bucket(s.total);
-    const color = b.key==='good' ? '#6FCF97' : b.key==='warn' ? '#E7A94C' : '#E0805C';
-    const timeLabel = (wpTimes && wpTimes[i] && i !== 0 && i !== n-1) ? fmtClock(wpTimes[i]) : '';
-    const showTimeAbove = p.y < GROUND_Y - 30;
-    const timeY = showTimeAbove ? p.y - 34 : p.y + 20;
-    const timeText = timeLabel
-      ? `<text x="${p.x.toFixed(1)}" y="${timeY.toFixed(1)}" fill="var(--text-primary)" font-size="11" font-weight="600" font-family="Space Grotesk, sans-serif" text-anchor="middle">${timeLabel}</text>`
-      : '';
-    return `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="${color}" stroke="#0F1B2E" stroke-width="1.5"/>`
-      + weatherIcon(b.key, p.x, p.y-20, color)
-      + timeText;
-  }).join('');
-
-  // Aereo più grande (ben visibile anche su schermo piccolo) con un'etichetta che lo
-  // segue mostrando, punto per punto, l'orario simulato e l'indice di turbolenza:
-  // non è più solo un'animazione decorativa, dà un'informazione che cambia nel tempo.
-  const plane = `
-    <g id="plane-group">
-      <g id="plane-shape">
-        <path d="M -18,-2.4 L 13,-2.6 Q 22,0 13,2.6 L -18,2.4 Q -21,0 -18,-2.4 Z" fill="var(--text-primary)" stroke="#0F1B2E" stroke-width="1.3"/>
-        <path d="M -3,-1.6 L -13,-15 L -7,-13.6 L 5,-2.4 Z" fill="var(--text-primary)" stroke="#0F1B2E" stroke-width="1.1"/>
-        <path d="M -3,1.6 L -13,15 L -7,13.6 L 5,2.4 Z" fill="var(--text-primary)" stroke="#0F1B2E" stroke-width="1.1"/>
-        <path d="M -13,-1.8 L -20,-7.5 L -16,-6.8 L -9,-1.8 Z" fill="var(--text-primary)" stroke="#0F1B2E" stroke-width="1"/>
-        <path d="M -13,1.8 L -20,7.5 L -16,6.8 L -9,1.8 Z" fill="var(--text-primary)" stroke="#0F1B2E" stroke-width="1"/>
-      </g>
-    </g>
-    <g id="plane-label-group">
-      <text id="plane-label" x="0" y="0" text-anchor="middle" font-size="13" font-weight="700"
-        font-family="Space Grotesk, sans-serif" fill="var(--text-primary)"
-        stroke="#0B1526" stroke-width="4" stroke-linejoin="round" paint-order="stroke fill">—</text>
-    </g>`;
-
-  svg.innerHTML = `
-    <line x1="20" y1="${GROUND_Y}" x2="680" y2="${GROUND_Y}" stroke="rgba(234,241,248,0.14)" stroke-dasharray="2 6"/>
-    <path id="flightProfilePath" d="${pathD}" fill="none" stroke="rgba(234,241,248,0.28)" stroke-width="2" stroke-dasharray="1 7" stroke-linecap="round"/>
-    ${markers}
-    <line x1="${(P0.x-16).toFixed(1)}" y1="${P0.y}" x2="${(P0.x+16).toFixed(1)}" y2="${P0.y}" stroke="var(--accent-calm)" stroke-width="3" stroke-linecap="round"/>
-    <line x1="${(P2.x-16).toFixed(1)}" y1="${P2.y}" x2="${(P2.x+16).toFixed(1)}" y2="${P2.y}" stroke="var(--accent-calm)" stroke-width="3" stroke-linecap="round"/>
-    <circle cx="${P0.x}" cy="${P0.y}" r="4.5" fill="var(--accent-calm)"/>
-    <circle cx="${P2.x}" cy="${P2.y}" r="4.5" fill="var(--accent-calm)"/>
-    ${plane}
-    <text x="${P0.x}" y="${(P0.y+22).toFixed(1)}" fill="#8FA3BE" font-size="11" font-family="IBM Plex Mono, monospace" text-anchor="start">${escapeXml(depLabel)}</text>
-    <text x="${P2.x}" y="${(P2.y+22).toFixed(1)}" fill="#8FA3BE" font-size="11" font-family="IBM Plex Mono, monospace" text-anchor="end">${escapeXml(arrLabel)}</text>
-    ${wpTimes && wpTimes[0] ? `<text x="${P0.x}" y="${(P0.y+36).toFixed(1)}" fill="var(--text-primary)" font-size="11" font-weight="600" font-family="Space Grotesk, sans-serif" text-anchor="start">${fmtClock(wpTimes[0])}</text>` : ''}
-    ${wpTimes && wpTimes[n-1] ? `<text x="${P2.x}" y="${(P2.y+36).toFixed(1)}" fill="var(--text-primary)" font-size="11" font-weight="600" font-family="Space Grotesk, sans-serif" text-anchor="end">${fmtClock(wpTimes[n-1])}</text>` : ''}
-  `;
-
-  const planeGroup = svg.querySelector('#plane-group');
-  const planeShape = svg.querySelector('#plane-shape');
-  const planeLabel = svg.querySelector('#plane-label');
-  const depTime = wpTimes && wpTimes[0] ? wpTimes[0].getTime() : null;
-  const arrTime = wpTimes && wpTimes[n-1] ? wpTimes[n-1].getTime() : null;
-
-  function turbulenceAt(t){
-    const scaledT = t*(n-1);
-    const i0 = Math.max(0, Math.min(n-1, Math.floor(scaledT)));
-    const i1 = Math.min(n-1, i0+1);
-    const frac = scaledT - i0;
-    return scores[i0].total + (scores[i1].total - scores[i0].total)*frac;
-  }
-
-  function placePlane(t){
-    const p = bezier(t);
-    const ahead = bezier(Math.min(1, t+0.01));
-    const angle = Math.atan2(ahead.y-p.y, ahead.x-p.x) * 180/Math.PI;
-    planeGroup.setAttribute('transform', `translate(${p.x.toFixed(1)},${p.y.toFixed(1)}) rotate(${angle.toFixed(1)})`);
-
-    const curScore = turbulenceAt(t);
-    const bb = bucket(curScore);
-
-    // Quando l'aereo attraversa un tratto turbolento lo faccio vibrare un po':
-    // l'intensità della vibrazione (scuotimento + lieve rollio) scala con lo score.
-    if(planeShape){
-      const shake = Math.max(0, (curScore - 35) / 65); // 0 = calmo, 1 = molto turbolento
-      if(shake > 0){
-        const jx = (Math.random()-0.5) * 2 * shake * 2.2;
-        const jy = (Math.random()-0.5) * 2 * shake * 2.2;
-        const jr = (Math.random()-0.5) * 2 * shake * 6;
-        planeShape.setAttribute('transform', `translate(${jx.toFixed(2)},${jy.toFixed(2)}) rotate(${jr.toFixed(2)})`);
-      }else{
-        planeShape.removeAttribute('transform');
-      }
-    }
-
-    const labelY = p.y < GROUND_Y - 40 ? p.y + 30 : p.y - 22;
-    planeLabel.setAttribute('x', p.x.toFixed(1));
-    planeLabel.setAttribute('y', labelY.toFixed(1));
-    planeLabel.setAttribute('fill', bb.color);
-    if(depTime != null && arrTime != null){
-      const curTime = new Date(depTime + t*(arrTime-depTime));
-      planeLabel.textContent = `${fmtClock(curTime)} · ${Math.round(curScore)}/100`;
-    }else{
-      planeLabel.textContent = `${Math.round(curScore)}/100`;
-    }
-  }
-
-  if(svg._planeAnimId) cancelAnimationFrame(svg._planeAnimId);
-
-  const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(reducedMotion){
-    let peakT = 0, peakScore = -1;
-    for(let i=0;i<=40;i++){ const tt=i/40; const sc=turbulenceAt(tt); if(sc>peakScore){ peakScore=sc; peakT=tt; } }
-    placePlane(peakT);
-  }else{
-    const DURATION = 9000;
-    let startTs = null;
-    function frame(ts){
-      if(!startTs) startTs = ts;
-      const t = ((ts - startTs) % DURATION) / DURATION;
-      placePlane(t);
-      svg._planeAnimId = requestAnimationFrame(frame);
-    }
-    svg._planeAnimId = requestAnimationFrame(frame);
-  }
+  const scaledT = t*(n-1);
+  const i0 = Math.max(0, Math.min(n-1, Math.floor(scaledT)));
+  const i1 = Math.min(n-1, i0+1);
+  const frac = scaledT - i0;
+  return scores[i0].total + (scores[i1].total - scores[i0].total)*frac;
 }
 
-// ---------- forecast cloud map (future-proof: model output, not a photo) ----------
-function skyFrameLabel(frameDate, hourOffset){
-  const timeStr = frameDate.toLocaleTimeString(undefined, {hour:'2-digit', minute:'2-digit'});
-  const dateStr = frameDate.toLocaleDateString(undefined, {day:'2-digit', month:'2-digit'});
-  return `${dateStr} ${timeStr}`;
+function routePointAt(t, waypoints){
+  const n = waypoints.length;
+  const scaledT = t*(n-1);
+  const i0 = Math.max(0, Math.min(n-1, Math.floor(scaledT)));
+  const i1 = Math.min(n-1, i0+1);
+  const frac = scaledT - i0;
+  const lat = waypoints[i0].lat + (waypoints[i1].lat - waypoints[i0].lat)*frac;
+  const lon = waypoints[i0].lon + (waypoints[i1].lon - waypoints[i0].lon)*frac;
+  return [lat, lon];
 }
 
-function skyStopTimer(){
-  if(skyTimer){ clearInterval(skyTimer); skyTimer = null; }
-  if(skyAnimId){ cancelAnimationFrame(skyAnimId); skyAnimId = null; }
-  skyLastTick = null;
-}
-
-function skyCloudColor(cloudPct){
-  // Linea sottile e limpida col cielo sereno, più chiara/spessa e "sfumata"
-  // dove il modello prevede più nuvole lungo quel tratto.
-  if(cloudPct == null) return {color:'#5A7092', opacity:0.5, weight:3};
-  const t = Math.max(0, Math.min(100, cloudPct)) / 100;
-  const color = t < 0.5 ? '#5FA8D3' : '#EAF1F8';
-  const opacity = 0.55 + t*0.4;
-  const weight = 3 + t*4;
-  return {color, opacity, weight};
+function bucketEmoji(key){
+  return key === 'good' ? '☀️' : key === 'warn' ? '⛅' : '🌩️';
 }
 
 function skyBearingDeg(p1, p2){
@@ -2425,79 +2172,13 @@ function skyBearingDeg(p1, p2){
   return (toDeg(Math.atan2(y, x)) + 360) % 360;
 }
 
-function skyUpdateGuideMarker(fraction){
-  if(!skyGuideMarker || !skyRouteLatLngs) return;
-  const [dep, arr] = skyRouteLatLngs;
-  const lat = dep[0] + (arr[0]-dep[0]) * fraction;
-  const lon = dep[1] + (arr[1]-dep[1]) * fraction;
-  skyGuideMarker.setLatLng([lat, lon]);
-  const el = skyGuideMarker.getElement && skyGuideMarker.getElement();
-  if(el){
-    const inner = el.querySelector('.sky-plane-rot');
-    if(inner) inner.style.transform = `rotate(${skyGuideBearing}deg)`;
-  }
-}
-
-function skyShowFrame(idx){
-  if(!skyFrames.length || !skyCloudLayer) return;
-  skyFrameIdx = ((idx % skyFrames.length) + skyFrames.length) % skyFrames.length;
-  const frame = skyFrames[skyFrameIdx];
-
-  // Aggiorno prima orario/slider (sempre, indipendentemente dal resto) così
-  // anche se il ridisegno di un segmento desse un problema, il tempo
-  // continua comunque ad avanzare invece di restare bloccato.
-  const slider = document.getElementById('sky-slider');
-  const timeEl = document.getElementById('sky-time');
-  if(slider) slider.value = skyFrameIdx;
-  if(timeEl) timeEl.textContent = `${skyFrameLabel(frame.time, frame.hourOffset)}  ·  ${skyFrameIdx+1}/${skyFrames.length}`;
-  skyUpdateGuideMarker(frame.fraction);
-
-  // Ridisegno i segmenti della rotta per quest'ora — solo un cambio di
-  // colore/spessore su una linea già a schermo, nessuna rete coinvolta.
-  skyCloudLayer.eachLayer(layer => {
-    try{
-      const cloud = layer._cfCloudFor(frame);
-      const style = skyCloudColor(cloud);
-      layer.setStyle({color: style.color, opacity: style.opacity, weight: style.weight});
-    }catch(err){
-      console.error('sky segment redraw error:', err.message || err);
-    }
-  });
-}
-
-function skyAnimTick(timestamp){
-  if(!skyPlaying) return;
-  if(skyLastTick == null) skyLastTick = timestamp;
-  if(timestamp - skyLastTick >= 900){
-    try{
-      skyShowFrame(skyFrameIdx + 1);
-    }catch(err){
-      // Un problema su un singolo fotogramma non deve bloccare per sempre
-      // l'animazione: lo registriamo e proviamo comunque ad andare avanti.
-      console.error('sky animation frame error:', err.message || err);
-    }
-    skyLastTick = timestamp;
-  }
-  skyAnimId = requestAnimationFrame(skyAnimTick);
-}
-
-function skySetPlaying(playing){
-  skyPlaying = playing;
-  const btn = document.getElementById('sky-play-btn');
-  if(btn) btn.textContent = playing ? '❚❚' : '▶';
-  skyStopTimer();
-  if(playing && skyFrames.length > 1){
-    skyLastTick = null;
-    skyAnimId = requestAnimationFrame(skyAnimTick);
-  }
-}
-
-function initForecastMap(depPt, arrPt, waypoints, cloudFrames){
-  const statusEl = document.getElementById('sky-status');
+function drawRouteMap(depPt, arrPt, waypoints, scores, wpTimes){
   const container = document.getElementById('sky-map');
   if(!container) return;
 
   try{
+    if(skyAnimId){ cancelAnimationFrame(skyAnimId); skyAnimId = null; }
+
     if(!skyLeafletMap){
       skyLeafletMap = L.map('sky-map', {
         zoomControl:false,
@@ -2513,114 +2194,134 @@ function initForecastMap(depPt, arrPt, waypoints, cloudFrames){
     }
 
     if(skyRouteLayer){ skyLeafletMap.removeLayer(skyRouteLayer); skyRouteLayer = null; }
-    if(skyCloudLayer){ skyLeafletMap.removeLayer(skyCloudLayer); skyCloudLayer = null; }
     if(skyGuideMarker){ skyLeafletMap.removeLayer(skyGuideMarker); skyGuideMarker = null; }
 
     const depLL = [depPt.lat, depPt.lon];
     const arrLL = [arrPt.lat, arrPt.lon];
-    skyRouteLatLngs = [depLL, arrLL];
-    const routeBounds = L.latLngBounds([depLL, arrLL]);
+    skyRouteLatLngs = waypoints.map(wp => [wp.lat, wp.lon]);
+    const routeBounds = L.latLngBounds(skyRouteLatLngs);
 
-    // Il pannello può ancora essere nel mezzo del layout (appena reso visibile),
-    // quindi il contenitore potrebbe non avere ancora dimensioni corrette: se
-    // aggiungiamo rotta/marker PRIMA che la mappa abbia una size/vista valide,
-    // Leaflet ne calcola la posizione su coordinate sbagliate e restano
-    // invisibili anche dopo — bisogna prima sistemare size+zoom, POI disegnare
-    // sopra tutto il resto.
+    // Se il pannello è appena diventato visibile la mappa potrebbe non avere
+    // ancora dimensioni corrette: prima sistemo size+zoom, POI disegno sopra
+    // rotta e marker — altrimenti Leaflet li piazza su coordinate sbagliate.
     setTimeout(() => {
       try{
         skyLeafletMap.invalidateSize();
-        skyLeafletMap.fitBounds(routeBounds, {padding:[28,28]});
+        skyLeafletMap.fitBounds(routeBounds, {padding:[30,30]});
 
-      const depDot = L.circleMarker(depLL, {radius:5, color:'#5FA8D3', weight:2, fillColor:'#EAF1F8', fillOpacity:1});
-      const arrDot = L.circleMarker(arrLL, {radius:5, color:'#5FA8D3', weight:2, fillColor:'#EAF1F8', fillOpacity:1});
-      const depName = escapeXml(depPt.compactLabel || depPt.label || '');
-      const arrName = escapeXml(arrPt.compactLabel || arrPt.label || '');
-      const depTag = L.marker(depLL, {
-        icon: L.divIcon({className:'sky-city-tag', html:`<span>${depName}</span>`, iconAnchor:[-10,6]}),
-        interactive:false
-      });
-      const arrTag = L.marker(arrLL, {
-        icon: L.divIcon({className:'sky-city-tag', html:`<span>${arrName}</span>`, iconAnchor:[-10,6]}),
-        interactive:false
-      });
+        const depName = escapeXml(depPt.compactLabel || depPt.label || '');
+        const arrName = escapeXml(arrPt.compactLabel || arrPt.label || '');
+        const depTag = L.marker(depLL, {
+          icon: L.divIcon({className:'sky-city-tag', html:`<span>${depName}</span>`, iconAnchor:[-10,6]}),
+          interactive:false
+        });
+        const arrTag = L.marker(arrLL, {
+          icon: L.divIcon({className:'sky-city-tag', html:`<span>${arrName}</span>`, iconAnchor:[-10,6]}),
+          interactive:false
+        });
 
-      // La rotta è spezzata in tratti tra un punto campionato e il successivo:
-      // ogni tratto viene colorato/ispessito in base alla nuvolosità prevista
-      // in quel punto, così basta guardare la linea per capire dove sono le
-      // nuvole, senza numeri da interpretare.
-      const routeSegments = [];
-      for(let i = 0; i < waypoints.length - 1; i++){
-        const a = [waypoints[i].lat, waypoints[i].lon];
-        const b = [waypoints[i+1].lat, waypoints[i+1].lon];
-        const seg = L.polyline([a, b], {color:'#5FA8D3', weight:3, opacity:0.55, lineCap:'round'});
-        seg._cfCloudFor = (frame) => {
-          const c1 = frame.points[i] ? frame.points[i].cloud : null;
-          const c2 = frame.points[i+1] ? frame.points[i+1].cloud : null;
-          if(c1 == null && c2 == null) return null;
-          if(c1 == null) return c2;
-          if(c2 == null) return c1;
-          return (c1 + c2) / 2;
-        };
-        routeSegments.push(seg);
-      }
+        const routeLine = L.polyline(skyRouteLatLngs, {
+          color:'#EAF1F8', weight:2, opacity:0.3, dashArray:'1 7'
+        });
 
-      skyGuideBearing = skyBearingDeg(depLL, arrLL);
-      const planeIconHtml = `
-        <div class="sky-plane-rot" style="transform:rotate(${skyGuideBearing}deg)">
-          <svg width="26" height="26" viewBox="-16 -16 32 32">
-            <path d="M -12,-1.6 L 9,-1.8 Q 15,0 9,1.8 L -12,1.6 Q -14,0 -12,-1.6 Z" fill="#E7A94C" stroke="#0F1B2E" stroke-width="1"/>
-            <path d="M -2,-1.1 L -9,-10 L -5,-9 L 3,-1.6 Z" fill="#E7A94C" stroke="#0F1B2E" stroke-width="0.8"/>
-            <path d="M -2,1.1 L -9,10 L -5,9 L 3,1.6 Z" fill="#E7A94C" stroke="#0F1B2E" stroke-width="0.8"/>
-          </svg>
-        </div>`;
+        const n = scores.length;
+        const waypointDots = scores.map((s, i) => {
+          const b = bucket(s.total);
+          const dot = L.circleMarker(skyRouteLatLngs[i], {
+            radius:5, weight:1.5, color:'#0F1B2E', fillColor: b.colorHex, fillOpacity:1
+          });
+          const showTime = wpTimes && wpTimes[i] && i !== 0 && i !== n-1;
+          const label = showTime ? L.marker(skyRouteLatLngs[i], {
+            icon: L.divIcon({
+              className:'sky-time-tag',
+              html:`<span>${bucketEmoji(b.key)} ${fmtClock(wpTimes[i])}</span>`,
+              iconAnchor:[-12,4]
+            }),
+            interactive:false
+          }) : null;
+          return label ? [dot, label] : [dot];
+        }).flat();
 
-      skyCloudLayer = L.layerGroup(routeSegments).addTo(skyLeafletMap);
-      skyRouteLayer = L.layerGroup([depDot, arrDot, depTag, arrTag]).addTo(skyLeafletMap);
-      skyGuideMarker = L.marker(depLL, {
-        icon: L.divIcon({className:'sky-plane-icon', html: planeIconHtml, iconSize:[26,26], iconAnchor:[13,13]}),
-        interactive:false
-      }).addTo(skyLeafletMap);
+        const depTimeTag = wpTimes && wpTimes[0] ? L.marker(depLL, {
+          icon: L.divIcon({className:'sky-time-tag', html:`<span>${fmtClock(wpTimes[0])}</span>`, iconAnchor:[-10,-10]}),
+          interactive:false
+        }) : null;
+        const arrTimeTag = wpTimes && wpTimes[n-1] ? L.marker(arrLL, {
+          icon: L.divIcon({className:'sky-time-tag', html:`<span>${fmtClock(wpTimes[n-1])}</span>`, iconAnchor:[-10,-10]}),
+          interactive:false
+        }) : null;
 
-      skySetPlaying(false);
+        const planeHtml = `
+          <div class="sky-plane-wrap">
+            <div class="sky-plane-rot">
+              <svg width="26" height="26" viewBox="-16 -16 32 32">
+                <path d="M -12,-1.6 L 9,-1.8 Q 15,0 9,1.8 L -12,1.6 Q -14,0 -12,-1.6 Z" fill="#EAF1F8" stroke="#0F1B2E" stroke-width="1"/>
+                <path d="M -2,-1.1 L -9,-10 L -5,-9 L 3,-1.6 Z" fill="#EAF1F8" stroke="#0F1B2E" stroke-width="0.8"/>
+                <path d="M -2,1.1 L -9,10 L -5,9 L 3,1.6 Z" fill="#EAF1F8" stroke="#0F1B2E" stroke-width="0.8"/>
+              </svg>
+            </div>
+            <span class="sky-plane-label">—</span>
+          </div>`;
 
-      if(!cloudFrames || !cloudFrames.length){
-        statusEl.textContent = t('skyMapError');
-        statusEl.style.display = 'block';
-        return;
-      }
+        skyGuideMarker = L.marker(depLL, {
+          icon: L.divIcon({className:'sky-plane-icon', html: planeHtml, iconSize:[70,46], iconAnchor:[13,13]}),
+          interactive:false,
+          zIndexOffset: 1000
+        });
 
-      skyFrames = cloudFrames;
-      skyFrameIdx = 0;
-      const slider = document.getElementById('sky-slider');
-      slider.max = skyFrames.length - 1;
-      slider.value = 0;
-      skyShowFrame(0);
-      statusEl.style.display = 'none';
-      }catch(err){
-        console.error('forecast map draw error:', err.message || err);
-        if(statusEl){
-          statusEl.textContent = t('skyMapError');
-          statusEl.style.display = 'block';
+        skyRouteLayer = L.layerGroup([routeLine, ...waypointDots, depTag, arrTag, depTimeTag, arrTimeTag, skyGuideMarker].filter(Boolean)).addTo(skyLeafletMap);
+
+        const depTime = wpTimes && wpTimes[0] ? wpTimes[0].getTime() : null;
+        const arrTime = wpTimes && wpTimes[n-1] ? wpTimes[n-1].getTime() : null;
+
+        function placePlane(t){
+          const pos = routePointAt(t, waypoints);
+          const ahead = routePointAt(Math.min(1, t+0.01), waypoints);
+          const bearing = skyBearingDeg(pos, ahead);
+          skyGuideMarker.setLatLng(pos);
+          const el = skyGuideMarker.getElement && skyGuideMarker.getElement();
+          if(el){
+            const rot = el.querySelector('.sky-plane-rot');
+            const label = el.querySelector('.sky-plane-label');
+            if(rot) rot.style.transform = `rotate(${bearing}deg)`;
+            const curScore = turbulenceAt(t, scores);
+            const bb = bucket(curScore);
+            if(label){
+              label.style.color = bb.colorHex;
+              if(depTime != null && arrTime != null){
+                const curTime = new Date(depTime + t*(arrTime-depTime));
+                label.textContent = `${fmtClock(curTime)} · ${Math.round(curScore)}/100`;
+              }else{
+                label.textContent = `${Math.round(curScore)}/100`;
+              }
+            }
+          }
         }
+
+        const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if(reducedMotion){
+          let peakT = 0, peakScore = -1;
+          for(let i=0;i<=40;i++){ const tt=i/40; const sc=turbulenceAt(tt, scores); if(sc>peakScore){ peakScore=sc; peakT=tt; } }
+          placePlane(peakT);
+        }else{
+          const DURATION = 9000;
+          let startTs = null;
+          function frame(ts){
+            if(!startTs) startTs = ts;
+            const t = ((ts - startTs) % DURATION) / DURATION;
+            try{ placePlane(t); }catch(err){ console.error('plane animation error:', err.message || err); }
+            skyAnimId = requestAnimationFrame(frame);
+          }
+          skyAnimId = requestAnimationFrame(frame);
+        }
+      }catch(err){
+        console.error('route map draw error:', err.message || err);
       }
     }, 60);
   }catch(err){
-    console.error('forecast map error:', err.message || err);
-    if(statusEl){
-      statusEl.textContent = t('skyMapError');
-      statusEl.style.display = 'block';
-    }
+    console.error('route map init error:', err.message || err);
   }
 }
-
-const skyPlayBtn = document.getElementById('sky-play-btn');
-const skySlider = document.getElementById('sky-slider');
-if(skyPlayBtn) skyPlayBtn.addEventListener('click', () => skySetPlaying(!skyPlaying));
-if(skySlider) skySlider.addEventListener('input', (e) => {
-  skySetPlaying(false);
-  skyShowFrame(parseInt(e.target.value, 10));
-});
 
 form.addEventListener('submit', async (e)=>{
   e.preventDefault();
@@ -2725,9 +2426,7 @@ form.addEventListener('submit', async (e)=>{
       climatology = null;
     }
 
-    const cloudFrames = buildCloudFrames(waypoints, weatherResults, departureDate, arrivalDate);
-
-    renderResults({ depPt, arrPt, waypoints, scores, flightNum, departureDate, arrivalDate, distanceKm, climatology, groundWeather, cloudFrames });
+    renderResults({ depPt, arrPt, waypoints, scores, flightNum, departureDate, arrivalDate, distanceKm, climatology, groundWeather });
     setStatus('');
   }catch(err){
     console.error(err);
@@ -2739,7 +2438,7 @@ form.addEventListener('submit', async (e)=>{
 
 function renderResults(args){
   lastRenderArgs = args;
-  const {depPt, arrPt, waypoints, scores, flightNum, departureDate, arrivalDate, distanceKm, climatology, groundWeather, cloudFrames} = args;
+  const {depPt, arrPt, waypoints, scores, flightNum, departureDate, arrivalDate, distanceKm, climatology, groundWeather} = args;
   document.getElementById('route-label').textContent = `${depPt.fullLabel || depPt.label} → ${arrPt.fullLabel || arrPt.label}`;
 
   const durationMs = arrivalDate - departureDate;
@@ -2851,8 +2550,7 @@ function renderResults(args){
   }
 
   drawStrip(scores);
-  drawMap(scores, depPt.compactLabel || depPt.label, arrPt.compactLabel || arrPt.label, wpTimes);
-  initForecastMap(depPt, arrPt, waypoints, cloudFrames);
+  drawRouteMap(depPt, arrPt, waypoints, scores, wpTimes);
 
   const wpList = document.getElementById('wp-list');
   const labels = [t('wpPartenza'),'',t('wpMetaRotta'),'',t('wpArrivoStimato')];
