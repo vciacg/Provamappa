@@ -328,14 +328,30 @@
   #sky-map .leaflet-control-attribution a{color:var(--accent-calm)!important;}
 
   .breathe-stage{
+    position:relative;
     display:flex;
     justify-content:center;
-    padding:20px 0 8px;
+    align-items:center;
+    padding:26px 0 14px;
   }
+  .breathe-ring{
+    position:absolute;
+    width:190px;height:190px;
+    border-radius:50%;
+    background:conic-gradient(from 0deg, var(--accent-calm), var(--accent-good), var(--accent-warn), var(--accent-calm));
+    filter:blur(1px);
+    opacity:0.55;
+    animation:breathe-spin 10s linear infinite;
+    -webkit-mask:radial-gradient(circle, transparent 62%, black 64%, black 100%);
+    mask:radial-gradient(circle, transparent 62%, black 64%, black 100%);
+  }
+  @keyframes breathe-spin{ to{ transform:rotate(360deg); } }
   .breathe-circle{
+    position:relative;
+    z-index:1;
     width:150px;height:150px;
     border-radius:50%;
-    background:radial-gradient(circle at 35% 30%, rgba(95,168,211,0.35), rgba(95,168,211,0.12) 70%);
+    background:radial-gradient(circle at 35% 30%, rgba(95,168,211,0.4), rgba(95,168,211,0.14) 70%);
     border:1.5px solid var(--accent-calm);
     display:flex;
     flex-direction:column;
@@ -343,12 +359,37 @@
     justify-content:center;
     gap:4px;
     transform:scale(0.62);
-    transition:transform 4s ease-in-out;
+    transition:transform 4s ease-in-out, background 3.5s ease, border-color 3.5s ease, box-shadow 3.5s ease;
+    box-shadow:0 0 0 rgba(95,168,211,0);
   }
-  .breathe-circle.inhale{transform:scale(1);transition-duration:4s;}
-  .breathe-circle.hold-full{transform:scale(1);transition-duration:0.3s;}
-  .breathe-circle.exhale{transform:scale(0.62);transition-duration:4s;}
-  .breathe-circle.hold-empty{transform:scale(0.62);transition-duration:0.3s;}
+  .breathe-circle.inhale{
+    transform:scale(1);
+    transition-duration:4s;
+    background:radial-gradient(circle at 35% 30%, rgba(95,168,211,0.5), rgba(95,168,211,0.16) 70%);
+    border-color:var(--accent-calm);
+    box-shadow:0 0 32px rgba(95,168,211,0.35);
+  }
+  .breathe-circle.hold-full{
+    transform:scale(1);
+    transition-duration:0.3s, 3.5s, 3.5s, 3.5s;
+    background:radial-gradient(circle at 35% 30%, rgba(231,169,76,0.5), rgba(231,169,76,0.16) 70%);
+    border-color:var(--accent-warn);
+    box-shadow:0 0 34px rgba(231,169,76,0.4);
+  }
+  .breathe-circle.exhale{
+    transform:scale(0.62);
+    transition-duration:4s;
+    background:radial-gradient(circle at 35% 30%, rgba(111,207,151,0.45), rgba(111,207,151,0.12) 70%);
+    border-color:var(--accent-good);
+    box-shadow:0 0 24px rgba(111,207,151,0.3);
+  }
+  .breathe-circle.hold-empty{
+    transform:scale(0.62);
+    transition-duration:0.3s, 3.5s, 3.5s, 3.5s;
+    background:radial-gradient(circle at 35% 30%, rgba(95,168,211,0.3), rgba(95,168,211,0.1) 70%);
+    border-color:var(--accent-calm);
+    box-shadow:0 0 18px rgba(95,168,211,0.2);
+  }
   .breathe-phase{
     font-family:'Space Grotesk',sans-serif;
     font-size:15px;
@@ -829,8 +870,10 @@
     <div class="strip-top">
       <span class="strip-route" data-i18n="breatheTitle">Guided breathing</span>
     </div>
+    <p class="map-note" style="margin:0 0 6px" data-i18n="breatheEmpathyLine">If turbulence is making you anxious right now, this can genuinely help within a couple of minutes — you're not doing anything wrong, your body is just reacting to something unfamiliar.</p>
     <p class="map-note" style="margin:0 0 16px" data-i18n="breatheIntro">Box breathing — a technique used by pilots and first responders to stay calm under stress. It's part of the app itself, so it works even offline, mid-flight, with no signal.</p>
     <div class="breathe-stage">
+      <div class="breathe-ring"></div>
       <div class="breathe-circle" id="breathe-circle">
         <span class="breathe-phase" id="breathe-phase" data-i18n="breathePhaseReady">Ready</span>
         <span class="breathe-count" id="breathe-count"></span>
@@ -902,6 +945,7 @@ const TRANSLATIONS = {
     "disclaimerMain": "even a \"high\" score on this scale is almost always just uncomfortable, not dangerous: aircraft are built to withstand far stronger stresses than the turbulence normally encountered, and pilots and controllers monitor and avoid it when they can. This is an indicative estimate from public weather models, not an official aviation forecast.",
     "disclaimerClimatology": "The \"vs. seasonal average\" comparisons are based on the same days of the year in past years (from 2022 onward, when available) at the route's midpoint: they give a sense of how much the forecast situation differs from what's typical for that area, not an official airline figure. Detailed weather forecasts only cover roughly the next 14 days, though: beyond that window the score and comparisons won't be available.",
     "breatheTitle": "Guided breathing",
+    "breatheEmpathyLine": "If turbulence is making you anxious right now, this can genuinely help within a couple of minutes — you're not doing anything wrong, your body is just reacting to something unfamiliar.",
     "breatheIntro": "Box breathing — used by pilots and first responders to stay calm under stress. It's built into the app itself, so it works even offline, mid-flight, with no signal.",
     "breatheStart": "Start",
     "breatheStop": "Stop",
@@ -1033,6 +1077,7 @@ const TRANSLATIONS = {
     "disclaimerMain": "anche un punteggio \"elevato\" in questa scala è quasi sempre solo fastidioso, non pericoloso: gli aerei sono costruiti per sollecitazioni molto più forti della turbolenza che si incontra normalmente, e piloti e controllori la monitorano e la evitano quando possono. È una stima indicativa da modelli meteo pubblici, non una previsione ufficiale dell'aviazione.",
     "disclaimerClimatology": "I confronti \"rispetto alla media di stagione\" si basano sugli stessi giorni dell'anno negli anni scorsi (dal 2022 in poi, quando disponibili) nel punto centrale della rotta: danno un'idea di quanto la situazione prevista si discosti dal solito per quella zona, non un dato ufficiale della compagnia aerea. Le previsioni meteo dettagliate coprono comunque solo circa i prossimi 14 giorni: oltre quella finestra il punteggio e i confronti non saranno disponibili.",
     "breatheTitle": "Respirazione guidata",
+    "breatheEmpathyLine": "Se in questo momento la turbolenza ti sta mettendo ansia, questo può aiutarti davvero in un paio di minuti — non stai sbagliando nulla, il tuo corpo sta solo reagendo a qualcosa di poco familiare.",
     "breatheIntro": "Respirazione a scatola (\"box breathing\") — usata da piloti e soccorritori per restare calmi sotto stress. È parte dell'app stessa, quindi funziona anche offline, in volo, senza segnale.",
     "breatheStart": "Inizia",
     "breatheStop": "Ferma",
@@ -1164,6 +1209,7 @@ const TRANSLATIONS = {
     "disclaimerMain": "incluso una puntuación \"alta\" en esta escala es casi siempre solo molesta, no peligrosa: los aviones están construidos para soportar tensiones mucho más fuertes que la turbulencia que se encuentra normalmente, y pilotos y controladores la monitorean y evitan cuando pueden. Es una estimación indicativa a partir de modelos meteorológicos públicos, no una previsión oficial de aviación.",
     "disclaimerClimatology": "Las comparaciones \"respecto a la media estacional\" se basan en los mismos días del año en años anteriores (desde 2022, cuando estén disponibles) en el punto central de la ruta: dan una idea de cuánto se aparta la situación prevista de lo habitual para esa zona, no un dato oficial de la aerolínea. Las previsiones meteorológicas detalladas cubren de todos modos solo unos 14 días: más allá de esa ventana, la puntuación y las comparaciones no estarán disponibles.",
     "breatheTitle": "Respiración guiada",
+    "breatheEmpathyLine": "Si la turbulencia te está poniendo ansioso ahora mismo, esto puede ayudarte de verdad en un par de minutos — no estás haciendo nada mal, tu cuerpo simplemente está reaccionando a algo poco familiar.",
     "breatheIntro": "Respiración cuadrada (\"box breathing\") — usada por pilotos y personal de emergencias para mantener la calma bajo estrés. Forma parte de la propia app, así que funciona incluso sin conexión, en pleno vuelo, sin señal.",
     "breatheStart": "Empezar",
     "breatheStop": "Detener",
@@ -1295,6 +1341,7 @@ const TRANSLATIONS = {
     "disclaimerMain": "même un score \"élevé\" sur cette échelle est presque toujours simplement désagréable, pas dangereux : les avions sont construits pour résister à des contraintes bien plus fortes que la turbulence normalement rencontrée, et pilotes et contrôleurs la surveillent et l'évitent quand ils le peuvent. Il s'agit d'une estimation indicative issue de modèles météo publics, pas d'une prévision aéronautique officielle.",
     "disclaimerClimatology": "Les comparaisons \"par rapport à la moyenne saisonnière\" se basent sur les mêmes jours de l'année lors des années passées (à partir de 2022, quand disponibles) au point central de la route : elles donnent une idée de l'écart entre la situation prévue et ce qui est habituel pour cette zone, pas une donnée officielle de la compagnie aérienne. Les prévisions météo détaillées ne couvrent de toute façon qu'environ les 14 prochains jours : au-delà, le score et les comparaisons ne seront pas disponibles.",
     "breatheTitle": "Respiration guidée",
+    "breatheEmpathyLine": "Si les turbulences vous rendent anxieux en ce moment, cela peut vraiment vous aider en quelques minutes — vous ne faites rien de mal, votre corps réagit simplement à quelque chose d'inhabituel.",
     "breatheIntro": "Respiration carrée (\"box breathing\") — utilisée par les pilotes et les secouristes pour rester calme sous stress. Elle fait partie de l'appli elle-même, donc elle fonctionne même hors ligne, en plein vol, sans signal.",
     "breatheStart": "Commencer",
     "breatheStop": "Arrêter",
@@ -1426,6 +1473,7 @@ const TRANSLATIONS = {
     "disclaimerMain": "即使这个量表上出现“较高”的分数，通常也只是令人不适，而非危险：飞机的设计能够承受远超正常湍流的应力，飞行员和管制员也会在可能的情况下监测并避开湍流。这是根据公开气象模型得出的参考性估算，并非官方航空预报。",
     "disclaimerClimatology": "“与季节性平均值相比”的比较基于往年同一天（自2022年起，如有数据）在航线中点处的数据：这可以让你了解预报情况与该地区通常状况的差异程度，并非航空公司的官方数据。详细天气预报大约只覆盖未来14天：超出此窗口后，指数和比较将不可用。",
     "breatheTitle": "引导呼吸",
+    "breatheEmpathyLine": "如果此刻的颠簸让你感到焦虑，这个方法在几分钟内真的能有所帮助——你没有做错什么，你的身体只是在对陌生的情况做出反应。",
     "breatheIntro": "方块呼吸法——飞行员和急救人员用来在压力下保持冷静的方法。它内置于应用本身，因此即使在飞行途中没有信号也能离线使用。",
     "breatheStart": "开始",
     "breatheStop": "停止",
@@ -1557,6 +1605,7 @@ const TRANSLATIONS = {
     "disclaimerMain": "mesmo uma pontuação \"elevada\" nesta escala é quase sempre apenas desconfortável, não perigosa: as aeronaves são construídas para suportar tensões muito mais fortes do que a turbulência normalmente encontrada, e pilotos e controladores a monitoram e evitam quando podem. Esta é uma estimativa indicativa de modelos meteorológicos públicos, não uma previsão aeronáutica oficial.",
     "disclaimerClimatology": "As comparações \"em relação à média sazonal\" são baseadas nos mesmos dias do ano em anos anteriores (a partir de 2022, quando disponível) no ponto central da rota: dão uma ideia de quanto a situação prevista se desvia do habitual para aquela área, não é um dado oficial da companhia aérea. As previsões meteorológicas detalhadas cobrem de qualquer forma apenas cerca dos próximos 14 dias: além dessa janela, a pontuação e as comparações não estarão disponíveis.",
     "breatheTitle": "Respiração guiada",
+    "breatheEmpathyLine": "Se a turbulência está te deixando ansioso agora, isso pode realmente ajudar em poucos minutos — você não está fazendo nada de errado, seu corpo só está reagindo a algo pouco familiar.",
     "breatheIntro": "Respiração quadrada (\"box breathing\") — usada por pilotos e socorristas para manter a calma sob estresse. Faz parte do próprio app, então funciona mesmo offline, em pleno voo, sem sinal.",
     "breatheStart": "Começar",
     "breatheStop": "Parar",
